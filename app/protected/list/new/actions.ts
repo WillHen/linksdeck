@@ -1,0 +1,58 @@
+// filepath: /Users/williamhenshaw/Desktop/projects/linkhub/app/protected/list/actions.ts
+import { supabase } from '@/lib/supabaseClient';
+
+interface Link {
+  id?: string;
+  title: string;
+  description: string;
+  url: string;
+  list_id?: string;
+  user_id?: string;
+}
+
+export const createListAndLinksAction = async (
+  title: string,
+  description: string,
+  links: Link[]
+) => {
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    throw new Error(userError.message);
+  }
+  // Update the list
+  // Create a new list
+  const { data, error: listError } = await supabase
+    .from('lists')
+    .insert([{ title, description, user_id: user?.id }])
+    .select();
+
+  if (listError) {
+    throw new Error(listError.message);
+  }
+
+  const listId = data?.[0].id;
+
+  if (!links.length) {
+    return listId;
+  }
+
+  // Insert links
+  const { error: linksError } = await supabase.from('links').insert(
+    links.map(({ title, description, url }) => ({
+      title,
+      description,
+      url,
+      list_id: listId,
+      user_id: user?.id
+    }))
+  );
+
+  if (linksError) {
+    throw new Error(linksError.message);
+  }
+  return listId;
+};
