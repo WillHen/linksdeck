@@ -47,6 +47,12 @@ jobs:
           npx playwright install --with-deps
           npx playwright test
 
-      - name: Stop test server
+     - name: Stop test server
         if: always()
-        run: kill $(lsof -t -i:3000)
+        run: |
+          pid=$(lsof -t -i:3000)
+          if [ -n "$pid" ]; then
+            kill $pid
+          else
+            echo "No process found running on port 3000"
+          fi
