@@ -22,6 +22,8 @@ jobs:
 
       - name: Set up Supabase
         uses: supabase/setup-cli@v1.3.0
+
+      - name: Start Supabase
         run: |
           touch .env.test
           supabase start
