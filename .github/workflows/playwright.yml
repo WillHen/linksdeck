@@ -22,7 +22,7 @@ jobs:
 
       - name: Set up Supabase
         uses: supabase/setup-cli@v1.3.0
-      - run: |
+        run: |
           touch .env.test
           supabase start
           sb_status=$(supabase status)
