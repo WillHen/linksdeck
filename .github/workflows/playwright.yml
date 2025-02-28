@@ -43,7 +43,10 @@ jobs:
         run: npm run test-server &
 
       - name: Run e2e Playwright tests
-        run: npx playwright test
+        run: |
+          npx playwright install --with-deps
+          npx playwright test
 
       - name: Stop test server
-        run: kill $(jobs -p)
+        if: always()
+        run: kill $(lsof -t -i:3000)
