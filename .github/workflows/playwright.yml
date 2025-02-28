@@ -32,7 +32,7 @@ jobs:
           echo -e "$env_content" > .env.test
 
       - name: Apply migrations
-        run: supabase db push
+        run: supabase db reset --local
 
       - name: Seed data
         run: node supabase/seedUser.js
