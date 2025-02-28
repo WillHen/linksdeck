@@ -47,7 +47,7 @@ jobs:
           npx playwright install --with-deps
           npx playwright test
 
-     - name: Stop test server
+      - name: Stop test server
         if: always()
         run: |
           pid=$(lsof -t -i:3000)
