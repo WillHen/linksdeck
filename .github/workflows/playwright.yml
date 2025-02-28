@@ -50,9 +50,4 @@ jobs:
       - name: Stop test server
         if: always()
         run: |
-          pid=$(lsof -t -i:3000)
-          if [ -n "$pid" ]; then
-            kill $pid
-          else
-            echo "No process found running on port 3000"
-          fi
+          kill $(jobs -p) || true
