@@ -39,8 +39,11 @@ jobs:
       - name: Seed data
         run: node supabase/seedUser.js
 
+      - name: Start test server
+        run: npm run test-server &
+
       - name: Run e2e Playwright tests
-        run: |
-          npx playwright install --with-deps
-          npm run test-server
-          npx playwright test
+        run: npx playwright test
+
+      - name: Stop test server
+        run: kill $(jobs -p)
