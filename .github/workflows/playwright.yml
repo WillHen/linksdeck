@@ -23,13 +23,13 @@ jobs:
       - name: Set up Supabase
         uses: supabase/setup-cli@v1.3.0
       - run: |
-        touch .env.test
-        supabase start
-        sb_status=$(supabase status)
-        api_url=$(echo "$sb_status" | grep -o 'API URL:.*' | awk '{print $3}')
-        anon_key=$(echo "$sb_status" | grep -o 'anon key: .*' | awk '{print $3}')
-        env_content="SUPABASE_URL=\"$api_url\"\nSUPABASE_ANON_KEY=\"$anon_key\"\n"
-        echo -e "$env_content" > .env.test
+          touch .env.test
+          supabase start
+          sb_status=$(supabase status)
+          api_url=$(echo "$sb_status" | grep -o 'API URL:.*' | awk '{print $3}')
+          anon_key=$(echo "$sb_status" | grep -o 'anon key: .*' | awk '{print $3}')
+          env_content="SUPABASE_URL=\"$api_url\"\nSUPABASE_ANON_KEY=\"$anon_key\"\n"
+          echo -e "$env_content" > .env.test
 
       - name: Apply migrations
         run: supabase db push
