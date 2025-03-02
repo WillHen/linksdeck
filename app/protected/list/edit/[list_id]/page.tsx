@@ -59,8 +59,9 @@ export default function EditListPage() {
       }
 
       router.push('/protected');
-    } catch (error) {
-      console.error('Error deleting list and links:', error.message);
+    } catch (error: unknown) {
+      const message = (error as Error).message;
+      console.error('Error deleting list and links:', message);
     }
   };
 
@@ -134,6 +135,7 @@ export default function EditListPage() {
     <div className='max-w-2xl mx-auto p-4'>
       <h2 className='text-2xl font-bold mb-4'>Edit List</h2>{' '}
       <button
+        data-testid
         onClick={() => handleDeleteList(list_id as string)}
         className='text-red-500 hover:text-red-700'
       >
@@ -159,6 +161,7 @@ export default function EditListPage() {
             <input
               type='text'
               id='title'
+              data-testid='list-title-input'
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
