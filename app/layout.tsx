@@ -4,8 +4,6 @@ import { hasEnvVars } from '@/utils/supabase/check-env-vars';
 import { Geist } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
-import Image from 'next/image';
-import logo from './LinkHub-Logo-SM.jpg';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -37,14 +35,16 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <main className='min-h-screen flex flex-col items-center'>
-            <div className='flex-1 w-full flex flex-col gap-20 items-center'>
+            <div className='flex-1 w-full flex flex-col items-center'>
               <nav className='w-full flex justify-center border-b border-b-foreground/10 h-16'>
-                <div className='w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm'>
+                <div className='w-full max-w-6xl flex justify-between items-center p-3 px-7 text-sm'>
+                  <span className='text-[#121417] text-lg font-bold leading-[23px]'>
+                    LinkHub
+                  </span>
                   {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                 </div>
               </nav>
-              <Image src={logo} alt='Logo' width={150} height={150} />
-              <div className='flex flex-col gap-20 max-w-5xl p-5'>
+              <div className='flex self-stretch flex-1 justify-center items-start flex-row py-5 px-4 sm:py-10 sm:px-20 md:py-20 md:px-40 lg:py-20 lg:px-80 xl:py-20 xl:px-160'>
                 {children}
               </div>
             </div>

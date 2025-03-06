@@ -19,14 +19,14 @@ jest.mock('@/lib/supabaseClient', () => ({
   }
 }));
 const mockUser = { id: 'user-id', email: 'user@example.com' };
-let mockListInsert = jest.fn().mockReturnThis();
-let mockListSelect = jest.fn().mockReturnThis();
-let mockLinkDelete = jest.fn().mockReturnThis();
-let mockListEq = jest.fn().mockReturnThis();
-let mockLinkEq = jest.fn().mockReturnThis();
-let mockLinkInsert = jest.fn().mockReturnThis();
-let mockLinkSelect = jest.fn().mockReturnThis();
-let mockListDelete = jest.fn().mockReturnThis();
+const mockListInsert = jest.fn().mockReturnThis();
+const mockListSelect = jest.fn().mockReturnThis();
+const mockLinkDelete = jest.fn().mockReturnThis();
+const mockListEq = jest.fn().mockReturnThis();
+const mockLinkEq = jest.fn().mockReturnThis();
+const mockLinkInsert = jest.fn().mockReturnThis();
+const mockLinkSelect = jest.fn().mockReturnThis();
+const mockListDelete = jest.fn().mockReturnThis();
 
 jest.mock('@/lib/supabaseClient', () => {
   return {
