@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 
-import type { ListResponse } from '@/app/types/List';
+import { getListsFromSupabase } from '@/app/utils';
 
 import Link from 'next/link';
 
@@ -17,10 +17,7 @@ export default async function ProtectedPage() {
     return redirect('/sign-in');
   }
 
-  const { data: lists } = await supabase
-    .from('lists')
-    .select('*')
-    .returns<Array<ListResponse>>();
+  const { data: lists } = await getListsFromSupabase(supabase);
 
   return (
     <div className='flex-1 w-full flex flex-col gap-12 flex-wrap'>
@@ -62,8 +59,8 @@ export default async function ProtectedPage() {
                 key={list.id}
                 index={index}
                 listId={list.id}
-                title={list.title}
-                linkCount={list.link_count}
+                title={list.title as string}
+                linkCount={list.link_count as number}
               />
             ))}
           </div>

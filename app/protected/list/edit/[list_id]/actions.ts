@@ -21,7 +21,7 @@ export async function fetchListAndLinks(list_id: string) {
   const { data: linksData, error: linksError } = await supabase
     .from('links')
     .select('*')
-    .eq('list_id', list_id); 
+    .eq('list_id', list_id);
 
   if (linksError) {
     throw new Error(linksError.message);

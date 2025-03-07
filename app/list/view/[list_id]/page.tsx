@@ -2,12 +2,14 @@ import { createClient } from '@/utils/supabase/server';
 
 import { ShareButtons } from './ShareButtons';
 
+import { getListsFromSupabase } from '@/app/utils';
+
 async function fetchListAndLinks(list_id: string) {
   const supabase = await createClient();
 
-  const { data: listData, error: listError } = await supabase
-    .from('lists')
-    .select('*')
+  const { data: listData, error: listError } = await getListsFromSupabase(
+    supabase
+  )
     .eq('id', list_id)
     .single();
 
