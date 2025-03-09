@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { link } from 'fs';
 
 interface LinkProps {
   title: string;
@@ -15,11 +14,11 @@ interface LinkProps {
 
 const urlPattern = new RegExp(
   '^(https?:\\/\\/)?' + // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR IP (v4) address
     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
     '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-    '(\\#[-a-z\\d_]*)?$',
+    '(\\#[-a-z\\d_]*)?$', // fragment locator
   'i'
 );
 
@@ -40,18 +39,9 @@ export function LinkDetails({
     setEditableUrl(url);
   }, [title, url]);
 
-  const handleCancel = () => {
-    if (!id && !editableTitle && !editableUrl) {
-      onDeleteLink(linkIndex);
-    } else {
-      setEditableTitle(title);
-      setEditableUrl(url);
-      setIsEditMode(false);
-    }
-  };
   return (
     <>
-      <div className='min-h-[72px] flex self-stretch justify-between items-center flex-row gap-4 py-2 px-4 bg-[#FFFFFF] h-[72px]'>
+      <div className='min-h-[72px] flex self-stretch justify-between items-center flex-row gap-4 py-2 px-4 bg-[#FFFFFF] h-[72px] mb-1.5'>
         <div className='flex justify-center items-start flex-col'>
           <div
             className='flex justify-start items-start flex-col w-[142px]'
@@ -60,12 +50,16 @@ export function LinkDetails({
             {isEditMode ? (
               <input
                 type='text'
+                data-testid='link-title-input'
                 className='self-stretch text-[#121417] font-medium leading-6 p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[32px] w-full'
                 value={editableTitle}
                 onChange={(e) => setEditableTitle(e.target.value)}
               />
             ) : (
-              <p className='self-stretch text-[#121417] font-medium leading-6'>
+              <p
+                data-testid={`link-title-${linkIndex}`}
+                className='self-stretch text-[#121417] font-medium leading-6'
+              >
                 {title}
               </p>
             )}
@@ -73,13 +67,17 @@ export function LinkDetails({
           <div className='flex justify-start items-start flex-col'>
             {isEditMode ? (
               <input
+                data-testid='link-url-input'
                 type='text'
-                className='text-[#637587] text-sm leading-[21px] p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[32px] w-full'
+                className='text-[#637587] mt-1.5 text-sm leading-[21px] p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[32px] w-full'
                 value={editableUrl}
                 onChange={(e) => setEditableUrl(e.target.value)}
               />
             ) : (
-              <span className='text-[#637587] text-sm leading-[21px]'>
+              <span
+                data-testid={`link-url-${linkIndex}`}
+                className='text-[#637587] text-sm leading-[21px]'
+              >
                 {url}
               </span>
             )}
@@ -110,7 +108,10 @@ export function LinkDetails({
                 setIsEditMode(false);
               }}
             >
-              <div className='flex justify-start items-center flex-col'>
+              <div
+                data-testid='cancel-button'
+                className='flex justify-start items-center flex-col'
+              >
                 <span className='text-[#121417] text-sm text-center font-medium leading-[21px]'>
                   Cancel
                 </span>
@@ -141,13 +142,17 @@ export function LinkDetails({
                 : () => setIsEditMode(true)
             }
           >
-            <div className='flex justify-start items-center flex-col'>
+            <div
+              data-testid={`${isEditMode ? 'confirm' : 'edit'}-button`}
+              className='flex justify-start items-center flex-col'
+            >
               <span className='text-[#121417] text-sm text-center font-medium leading-[21px]'>
                 {isEditMode ? 'Confirm' : 'Edit'}
               </span>
             </div>
           </div>
           <div
+            data-testid='link-delete'
             className='min-w-[32px] max-w-[32px] flex justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl h-[32px] cursor-pointer'
             onClick={() => onDeleteLink(linkIndex)}
           >

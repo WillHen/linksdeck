@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams } from 'next/navigation';
 
@@ -9,6 +9,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { fetchListAndLinks, saveListAndLinks } from './actions';
 import { LinkDetails } from './LinkDetails';
+import { SkeletonLoader } from './SkeleonLoader';
 
 interface Link {
   title: string;
@@ -24,7 +25,7 @@ export default function EditListPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [, setError] = useState('');
   const [formError, setFormError] = useState('');
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
   const [user_id, setUser_id] = useState('');
@@ -155,103 +156,114 @@ export default function EditListPage() {
     setIsClient(true);
   }, []);
 
-  if (!isClient) return <h1>Loading...</h1>;
+  if (!isClient) return <></>;
 
   return (
-    <div className='max-w-[960px] flex flex-1 justify-start items-start flex-col'>
-      <div className='flex flex-wrap self-stretch justify-between items-start flex-row gap-3 p-4'>
-        <div className='min-w-[288px] flex justify-start items-start flex-col gap-3'>
-          <div
-            className='flex flex-row items-center w-[352px]'
-            style={{ width: '352px' }}
-          >
-            <p className='self-stretch text-[#121417] text-[32px] font-bold leading-10'>
-              Edit list
-            </p>
-            <FontAwesomeIcon
-              icon={faTrash}
-              className='text-[#121417] ml-2 cursor-pointer'
-              onClick={() => handleDeleteList(list_id as string)}
-            />
-          </div>
-        </div>
-      </div>
-      <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
-        <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
-          <div className='flex self-stretch justify-start items-start flex-col pb-2'>
-            <p className='self-stretch text-[#121417] font-medium leading-6'>
-              List title
-            </p>
-          </div>
-          <input
-            type='text'
-            className='flex self-stretch justify-start items-center flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[32px] w-full'
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          {formError && (
-            <p className='text-red-500 text-sm mt-2'>{formError}</p>
-          )}
-        </div>
-      </div>
-      <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
-        <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
-          <div className='flex self-stretch justify-start items-start flex-col pb-2'>
-            <p className='self-stretch text-[#121417] font-medium leading-6'>
-              Description
-            </p>
-          </div>
-          <textarea
-            className='min-h-[144px] flex self-stretch flex-1 justify-start items-start flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl w-full'
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-      </div>
-      <div className='flex self-stretch justify-start items-start flex-col pt-4 pb-2 px-4'>
-        <p className='self-stretch text-[#121417] text-lg font-bold leading-[23px]'>
-          Links in this list
-        </p>
-      </div>
-      {links.map((link, index) => (
-        <LinkDetails
-          key={index}
-          id={link.id as string}
-          linkIndex={index}
-          title={link.title}
-          url={link.url}
-          onChange={handleChange}
-          onDeleteLink={() => handleDeleteLink(index)}
-        />
-      ))}
-      <form onSubmit={handleSubmit} className='w-full'>
-        <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
-          <div
-            onClick={handleAddLink}
-            className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl h-[40px]'
-          >
-            <div className='flex justify-start items-center flex-col'>
-              <span className='text-[#121417] text-sm text-center font-bold leading-[21px]'>
-                Add link
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
-          <div className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'>
-            <div className='flex justify-start items-center flex-col'>
-              <button
-                type='submit'
-                className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'
+    <>
+      {loading ? (
+        <SkeletonLoader />
+      ) : (
+        <div className='max-w-[960px] flex flex-1 justify-start items-start flex-col'>
+          <div className='flex flex-wrap self-stretch justify-between items-start flex-row gap-3 p-4'>
+            <div className='min-w-[288px] flex justify-start items-start flex-col gap-3'>
+              <div
+                data-testid='edit-list-header'
+                className='flex flex-row items-center w-[352px]'
+                style={{ width: '352px' }}
               >
-                <span className='text-[#FFFFFF] text-sm text-center font-bold leading-[21px]'>
-                  Save changes
-                </span>
-              </button>
+                <p className='self-stretch text-[#121417] text-[32px] font-bold leading-10'>
+                  Edit list
+                </p>
+                <FontAwesomeIcon
+                  data-testid='delete-list-button'
+                  icon={faTrash}
+                  className='text-[#121417] ml-2 cursor-pointer'
+                  onClick={() => handleDeleteList(list_id as string)}
+                />
+              </div>
             </div>
           </div>
+          <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
+            <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
+              <div className='flex self-stretch justify-start items-start flex-col pb-2'>
+                <p className='self-stretch text-[#121417] font-medium leading-6'>
+                  List title
+                </p>
+              </div>
+              <input
+                data-testid='list-title-input'
+                type='text'
+                className='flex self-stretch justify-start items-center flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[32px] w-full'
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              {formError && (
+                <p className='text-red-500 text-sm mt-2'>{formError}</p>
+              )}
+            </div>
+          </div>
+          <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
+            <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
+              <div className='flex self-stretch justify-start items-start flex-col pb-2'>
+                <p className='self-stretch text-[#121417] font-medium leading-6'>
+                  Description
+                </p>
+              </div>
+              <textarea
+                data-testid='list-description-input'
+                className='min-h-[144px] flex self-stretch flex-1 justify-start items-start flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl w-full'
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className='flex self-stretch justify-start items-start flex-col pt-4 pb-2 px-4'>
+            <p className='self-stretch text-[#121417] text-lg font-bold leading-[23px]'>
+              Links in this list
+            </p>
+          </div>
+          {links.map((link, index) => (
+            <LinkDetails
+              key={index}
+              id={link.id as string}
+              linkIndex={index}
+              title={link.title}
+              url={link.url}
+              onChange={handleChange}
+              onDeleteLink={() => handleDeleteLink(index)}
+            />
+          ))}
+          <form onSubmit={handleSubmit} className='w-full'>
+            <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
+              <div
+                onClick={handleAddLink}
+                className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl h-[40px]'
+              >
+                <div className='flex justify-start items-center flex-col'>
+                  <span className='text-[#121417] text-sm text-center font-bold leading-[21px]'>
+                    Add link
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
+              <div className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'>
+                <div className='flex justify-start items-center flex-col'>
+                  <button
+                    data-testid='update-list-button'
+                    type='submit'
+                    className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'
+                  >
+                    <span className='text-[#FFFFFF] text-sm text-center font-bold leading-[21px]'>
+                      Save changes
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+      )}
+    </>
   );
 }

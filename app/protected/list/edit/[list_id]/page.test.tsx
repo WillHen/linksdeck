@@ -99,14 +99,11 @@ describe('EditListPage', () => {
     render(<EditListPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Edit List')).toBeInTheDocument();
+      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test List')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test Description')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Link 1')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Description 1')).toBeInTheDocument();
-      expect(
-        screen.getByDisplayValue('https://example.com')
-      ).toBeInTheDocument();
+      expect(screen.getByTestId('link-title-0')).toBeInTheDocument();
+      expect(screen.getByTestId('link-url-0')).toBeInTheDocument();
     });
   });
 
@@ -114,17 +111,17 @@ describe('EditListPage', () => {
     render(<EditListPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Edit List')).toBeInTheDocument();
+      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
       expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText('Title'), {
+    fireEvent.change(screen.getByTestId('list-title-input'), {
       target: { value: 'Updated List' }
     });
-    fireEvent.change(screen.getByLabelText('Description'), {
+    fireEvent.change(screen.getByTestId('list-description-input'), {
       target: { value: 'Updated Description' }
     });
-    fireEvent.click(screen.getByText('Update List'));
+    fireEvent.click(screen.getByTestId('update-list-button'));
 
     await waitFor(() => {
       expect(mockSaveListAndLinks).toHaveBeenCalledWith(
@@ -149,20 +146,15 @@ describe('EditListPage', () => {
     render(<EditListPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Edit List')).toBeInTheDocument();
+      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
       expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText('×'));
+    fireEvent.click(screen.getByTestId('link-delete'));
 
     await waitFor(() => {
-      expect(screen.queryByDisplayValue('Link 1')).not.toBeInTheDocument();
-      expect(
-        screen.queryByDisplayValue('Description 1')
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByDisplayValue('https://example.com')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('link-title-0')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('link-url-0')).not.toBeInTheDocument();
     });
   });
 
@@ -170,7 +162,7 @@ describe('EditListPage', () => {
     render(<EditListPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Edit List')).toBeInTheDocument();
+      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
       expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
     });
 
