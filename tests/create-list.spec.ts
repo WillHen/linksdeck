@@ -44,4 +44,11 @@ test('test', async ({ page }) => {
 
   await expect(listContainer).toBeVisible();
 
+  const editList = await page.locator('[data-testid="edit-list-0"]');
+
+  editList.click();
+
+  const editHeader = await page.locator('[data-testid="edit-list-header"]');
+  await expect(editHeader).toBeVisible();
+
 });
