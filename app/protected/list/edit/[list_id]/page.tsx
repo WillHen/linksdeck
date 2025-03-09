@@ -1,15 +1,14 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams } from 'next/navigation';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-import { AddLinkForm } from './AddLinkForm';
 import { fetchListAndLinks, saveListAndLinks } from './actions';
+import { LinkDetails } from './LinkDetails';
 
 interface Link {
   title: string;
@@ -26,11 +25,12 @@ export default function EditListPage() {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
   const [user_id, setUser_id] = useState('');
-  const [links, setLinks] = useState<Link[]>([
-    { title: '', description: '', url: '' }
-  ]);
+  const [links, setLinks] = useState<Link[]>([]);
+
+  const [isClient, setIsClient] = useState(false);
 
   const handleAddLink = () => {
     setLinks([...links, { title: '', description: '', url: '' }]);
@@ -66,26 +66,41 @@ export default function EditListPage() {
   };
 
   const handleDeleteLink = (index: number) => {
-    const linkToDelete = links[index];
-    if (linkToDelete.id) {
-      setLinksToDelete((prevLinksToDelete) => [
-        ...prevLinksToDelete,
-        linkToDelete?.id as string
-      ]);
-    }
-    setLinks((prevLinks) => prevLinks.filter((_, i) => i !== index));
+    setLinks((prevLinks) => {
+      const linkToDelete = prevLinks[index];
+      if (linkToDelete && linkToDelete.id) {
+        setLinksToDelete((prevLinksToDelete) => [
+          ...prevLinksToDelete,
+          linkToDelete.id as string
+        ]);
+      }
+      return prevLinks.filter((_, i) => i !== index);
+    });
   };
 
-  const handleChange = (index: number, field: keyof Link, value: string) => {
+  const handleChange = (
+    index: number,
+    value: { title: string; url: string }
+  ) => {
     const newLinks = [...links];
-    newLinks[index][field] = value;
+    const updatedUrl =
+      value.url.startsWith('http://') || value.url.startsWith('https://')
+        ? value.url
+        : `http://${value.url}`;
+    newLinks[index] = {
+      ...newLinks[index],
+      title: value.title,
+      url: updatedUrl
+    };
     setLinks(newLinks);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { listData, linksData } = await fetchListAndLinks(list_id);
+        const { listData, linksData } = await fetchListAndLinks(
+          list_id as string
+        );
         setUser_id(listData.user_id);
         setTitle(listData.title);
         setDescription(listData.description);
@@ -105,6 +120,11 @@ export default function EditListPage() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!title) {
+      setFormError('List title is required');
+      return;
+    }
+    setFormError('');
     try {
       await saveListAndLinks(
         list_id as string,
@@ -131,72 +151,107 @@ export default function EditListPage() {
     }
   };
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return <h1>Loading...</h1>;
+
   return (
-    <div className='max-w-2xl mx-auto p-4'>
-      <h2 className='text-2xl font-bold mb-4'>Edit List</h2>{' '}
-      <button
-        data-testid='delete-list-button'
-        onClick={() => handleDeleteList(list_id as string)}
-        className='text-red-500 hover:text-red-700'
-      >
-        <FontAwesomeIcon icon={faTrash} />
-      </button>
-      {loading ? (
-        <div className='space-y-4'>
-          <div className='h-6 bg-gray-200 rounded animate-pulse w-full min-w-[200px]'></div>
-          <div className='h-6 bg-gray-200 rounded animate-pulse w-full min-w-[200px]'></div>
-          <div className='h-6 bg-gray-200 rounded animate-pulse w-full min-w-[200px]'></div>
-          <div className='h-32 bg-gray-200 rounded animate-pulse w-full min-w-[200px]'></div>
-          <div className='h-10 bg-gray-200 rounded animate-pulse w-full min-w-[200px]'></div>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <div className='mb-4'>
-            <label
-              htmlFor='title'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Title
-            </label>
-            <input
-              type='text'
-              id='title'
-              data-testid='list-title-input'
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
-            />
-          </div>
-          <div className='mb-4'>
-            <label
-              htmlFor='description'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Description
-            </label>
-            <textarea
-              id='description'
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
-            />
-          </div>
-          <AddLinkForm
-            links={links}
-            handleAddLink={handleAddLink}
-            handleChange={handleChange}
-            handleDeleteLink={handleDeleteLink}
-          />
-          <button
-            type='submit'
-            className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+    <div className='max-w-[960px] flex flex-1 justify-start items-start flex-col'>
+      <div className='flex flex-wrap self-stretch justify-between items-start flex-row gap-3 p-4'>
+        <div className='min-w-[288px] flex justify-start items-start flex-col gap-3'>
+          <div
+            className='flex flex-row items-center w-[352px]'
+            style={{ width: '352px' }}
           >
-            Update List
-          </button>
-        </form>
-      )}
-      {error && <p className='mt-4 text-red-600'>{error}</p>}
+            <p className='self-stretch text-[#121417] text-[32px] font-bold leading-10'>
+              Edit list
+            </p>
+            <FontAwesomeIcon
+              icon={faTrash}
+              className='text-[#121417] ml-2 cursor-pointer'
+              onClick={() => handleDeleteList(list_id as string)}
+            />
+          </div>
+        </div>
+      </div>
+      <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
+        <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
+          <div className='flex self-stretch justify-start items-start flex-col pb-2'>
+            <p className='self-stretch text-[#121417] font-medium leading-6'>
+              List title
+            </p>
+          </div>
+          <input
+            type='text'
+            className='flex self-stretch justify-start items-center flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[32px] w-full'
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          {formError && (
+            <p className='text-red-500 text-sm mt-2'>{formError}</p>
+          )}
+        </div>
+      </div>
+      <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
+        <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
+          <div className='flex self-stretch justify-start items-start flex-col pb-2'>
+            <p className='self-stretch text-[#121417] font-medium leading-6'>
+              Description
+            </p>
+          </div>
+          <textarea
+            className='min-h-[144px] flex self-stretch flex-1 justify-start items-start flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl w-full'
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className='flex self-stretch justify-start items-start flex-col pt-4 pb-2 px-4'>
+        <p className='self-stretch text-[#121417] text-lg font-bold leading-[23px]'>
+          Links in this list
+        </p>
+      </div>
+      {links.map((link, index) => (
+        <LinkDetails
+          key={index}
+          id={link.id as string}
+          linkIndex={index}
+          title={link.title}
+          url={link.url}
+          onChange={handleChange}
+          onDeleteLink={() => handleDeleteLink(index)}
+        />
+      ))}
+      <form onSubmit={handleSubmit} className='w-full'>
+        <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
+          <div
+            onClick={handleAddLink}
+            className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl h-[40px]'
+          >
+            <div className='flex justify-start items-center flex-col'>
+              <span className='text-[#121417] text-sm text-center font-bold leading-[21px]'>
+                Add link
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
+          <div className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'>
+            <div className='flex justify-start items-center flex-col'>
+              <button
+                type='submit'
+                className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'
+              >
+                <span className='text-[#FFFFFF] text-sm text-center font-bold leading-[21px]'>
+                  Save changes
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
