@@ -41,7 +41,10 @@ export function LinkDetails({
 
   return (
     <>
-      <div className='min-h-[72px] flex self-stretch justify-between items-center flex-row gap-4 py-2 px-4 bg-[#FFFFFF] h-[72px] mb-1.5'>
+      <div
+        data-testid={`link-${linkIndex}`}
+        className='min-h-[72px] flex self-stretch justify-between items-center flex-row gap-4 py-2 px-4 bg-[#FFFFFF] h-[72px] mb-1.5'
+      >
         <div className='flex justify-center items-start flex-col'>
           <div
             className='flex justify-start items-start flex-col w-[142px]'

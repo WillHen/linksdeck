@@ -1,8 +1,10 @@
 import { createClient } from '@/utils/supabase/server';
 
-import { ShareButtons } from './ShareButtons';
+import Link from 'next/link';
 
-import { getListsFromSupabase } from '@/app/utils';
+import type { Database } from '@/app/types/Supabase';
+
+import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
 
 async function fetchListAndLinks(list_id: string) {
   const supabase = await createClient();
@@ -17,10 +19,9 @@ async function fetchListAndLinks(list_id: string) {
     throw new Error(listError.message);
   }
 
-  const { data: linksData, error: linksError } = await supabase
-    .from('links')
-    .select('*')
-    .eq('list_id', list_id);
+  const { data: linksData, error: linksError } = await getLinksFromSupabase(
+    supabase
+  ).eq('list_id', list_id);
 
   if (linksError) {
     throw new Error(linksError.message);
@@ -37,61 +38,65 @@ export default async function ViewListPage({ params }: { params: Params }) {
   const { list_id } = await params;
   let title = '';
   let description = '';
-  let error = '';
-  let linksData = [];
+  let linksData: Database['public']['Tables']['links']['Row'][] = [];
 
   try {
     const { listData, linksData: links } = await fetchListAndLinks(list_id);
-    title = listData.title;
-    description = listData.description;
+    title = listData.title ?? '';
+    description = listData.description ?? '';
     linksData = links;
   } catch (err) {
-    if (err instanceof Error) {
-      error = err.message;
-    } else {
-      error = String(err);
-    }
+    console.error('Error fetching list and links:', err);
   }
 
   return (
-    <div className='max-w-2xl mx-auto p-4'>
-      <h2 data-testid='view-list-header' className='text-2xl font-bold mb-4'>
-        View List
-      </h2>
-      {error && <p className='mt-4 text-red-600'>{error}</p>}
-      <div className='mb-4'>
-        <h3 className='text-xl font-semibold text-gray-800'>{title}</h3>
-        <p className='mt-2 text-gray-600'>{description}</p>
+    <div className='max-w-[960px] flex flex-1 justify-start items-start flex-col h-[695px]'>
+      <div className='flex flex-wrap self-stretch justify-between items-start flex-row gap-3 p-4'>
+        <div className='min-w-[288px] flex justify-start items-start flex-col gap-3'>
+          <div
+            className='flex justify-start items-start flex-col w-[288px]'
+            style={{ width: '288px' }}
+          >
+            <p className='self-stretch text-[#121417] text-[32px] font-bold leading-10'>
+              {title}
+            </p>
+          </div>
+          <div
+            className='flex justify-start items-start flex-col w-[288px]'
+            style={{ width: '288px' }}
+          >
+            <p className='self-stretch text-[#61788A] text-sm leading-[21px]'>
+              {description}
+            </p>
+          </div>
+        </div>
       </div>
-      <div className='mt-4'>
-        <h4 className='text-lg font-semibold mb-2'>Links</h4>
-        {linksData.length > 0 ? (
-          <ul>
-            {linksData.map((link) => (
-              <li
-                key={link.id}
-                className='mb-4 p-4 border border-gray-300 rounded-md shadow-sm'
-              >
-                <a
-                  href={link.url}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-blue-500 underline text-xl font-bold hover:text-blue-700'
+      {linksData.map((link, index) => {
+        return (
+          <Link key={index} href={link.url} target='_blank'>
+            <div
+              key={index}
+              className='min-h-[72px] flex self-stretch justify-start items-center flex-row gap-4 py-2 px-4 bg-[#FFFFFF] h-[72px]'
+            >
+              <div className='flex justify-center items-start flex-col'>
+                <div
+                  className='flex justify-start items-start flex-col w-[147px]'
+                  style={{ width: '147px' }}
                 >
-                  {link.title}
-                </a>
-                <p>{link.description}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No links available.</p>
-        )}
-      </div>
-      <ShareButtons
-        url={`${process.env.NODE_ENV === 'development' ? 'http://www.localhost:3000/' : 'https://www.linkhub.com/'}list/view/${list_id}`}
-        title={title}
-      />
+                  <p className='self-stretch text-[#121417] font-medium leading-6'>
+                    {link.title}
+                  </p>
+                </div>
+                <div className='flex justify-start items-start flex-col'>
+                  <p className='self-stretch text-[#61788A] text-sm leading-[21px]'>
+                    {link.url}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }

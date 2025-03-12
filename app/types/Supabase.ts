@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       links: {
@@ -40,8 +15,8 @@ export type Database = {
           description: string | null
           id: string
           list_id: string | null
-          title: string | null
-          url: string | null
+          title: string
+          url: string
           user_id: string
         }
         Insert: {
@@ -49,8 +24,8 @@ export type Database = {
           description?: string | null
           id?: string
           list_id?: string | null
-          title?: string | null
-          url?: string | null
+          title: string
+          url: string
           user_id: string
         }
         Update: {
@@ -58,8 +33,8 @@ export type Database = {
           description?: string | null
           id?: string
           list_id?: string | null
-          title?: string | null
-          url?: string | null
+          title?: string
+          url?: string
           user_id?: string
         }
         Relationships: [
@@ -86,7 +61,7 @@ export type Database = {
           id: string
           link_count: number | null
           public: boolean | null
-          title: string | null
+          title: string
           user_id: string | null
         }
         Insert: {
@@ -95,7 +70,7 @@ export type Database = {
           id?: string
           link_count?: number | null
           public?: boolean | null
-          title?: string | null
+          title: string
           user_id?: string | null
         }
         Update: {
@@ -104,7 +79,7 @@ export type Database = {
           id?: string
           link_count?: number | null
           public?: boolean | null
-          title?: string | null
+          title?: string
           user_id?: string | null
         }
         Relationships: [
@@ -250,4 +225,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-

@@ -26,11 +26,11 @@ export function ListSegment({
           </p>
         </div>
       </div>
-      <div className='flex justify-start items-start flex-col'>
-        <Link
-          data-testid={`edit-list-${index}`}
-          href={`protected/list/edit/${listId}`}
-        >
+      <Link
+        data-testid={`edit-list-${index}`}
+        href={`protected/list/edit/${listId}`}
+      >
+        <div className='flex justify-start items-start flex-col'>
           <div
             className='min-w-[84px] max-w-[480px] flex justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl w-[84px] h-[32px]'
             style={{ width: '84px' }}
@@ -41,8 +41,8 @@ export function ListSegment({
               </span>
             </div>
           </div>
-        </Link>
-      </div>
+        </div>
+      </Link>
     </div>
   );
 }

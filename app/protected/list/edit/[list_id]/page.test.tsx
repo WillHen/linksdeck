@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within
+} from '@testing-library/react';
 import EditListPage from './page';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
@@ -140,6 +146,27 @@ describe('EditListPage', () => {
       );
       expect(mockRouterPush).toHaveBeenCalledWith('/list/view/list_id');
     });
+  });
+
+  test('handle cancelling empty link', async () => {
+    render(<EditListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
+      expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('add-link-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('link-1')).toBeInTheDocument();
+    });
+
+    const linkContainer = screen.getByTestId('link-1');
+
+    fireEvent.click(within(linkContainer).getByTestId('cancel-button'));
+
+    expect(screen.queryByTestId('link-1')).not.toBeInTheDocument();
   });
 
   test('handles link deletion', async () => {

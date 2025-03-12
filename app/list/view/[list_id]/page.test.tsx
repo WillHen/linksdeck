@@ -56,7 +56,6 @@ describe('ViewListPage', () => {
     // Assert links
     linksData.forEach((link) => {
       expect(screen.getByText(link.title)).toBeInTheDocument();
-      expect(screen.getByText(link.description)).toBeInTheDocument();
       expect(screen.getByText(link.title).closest('a')).toHaveAttribute(
         'href',
         link.url

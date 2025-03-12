@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -17,6 +18,7 @@ interface Link {
   url: string;
   id?: string;
   user_id?: string;
+  new_id?: string;
 }
 
 export default function EditListPage() {
@@ -34,7 +36,10 @@ export default function EditListPage() {
   const [isClient, setIsClient] = useState(false);
 
   const handleAddLink = () => {
-    setLinks([...links, { title: '', description: '', url: '' }]);
+    setLinks([
+      ...links,
+      { title: '', description: '', url: '', new_id: uuidv4() }
+    ]);
   };
 
   const handleDeleteList = async (listId: string) => {
@@ -67,16 +72,15 @@ export default function EditListPage() {
   };
 
   const handleDeleteLink = (index: number) => {
-    setLinks((prevLinks) => {
-      const linkToDelete = prevLinks[index];
-      if (linkToDelete && linkToDelete.id) {
-        setLinksToDelete((prevLinksToDelete) => [
-          ...prevLinksToDelete,
-          linkToDelete.id as string
-        ]);
-      }
-      return prevLinks.filter((_, i) => i !== index);
-    });
+    const newLinks = links.filter((_, i) => i !== index);
+    const linkToDelete = links[index];
+    if (linkToDelete && linkToDelete.id) {
+      setLinksToDelete((prevLinksToDelete) => [
+        ...prevLinksToDelete,
+        linkToDelete.id as string
+      ]);
+    }
+    setLinks([...newLinks]);
   };
 
   const handleChange = (
@@ -224,7 +228,7 @@ export default function EditListPage() {
           </div>
           {links.map((link, index) => (
             <LinkDetails
-              key={index}
+              key={link.id || link.new_id}
               id={link.id as string}
               linkIndex={index}
               title={link.title}
@@ -236,6 +240,7 @@ export default function EditListPage() {
           <form onSubmit={handleSubmit} className='w-full'>
             <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
               <div
+                data-testid='add-link-button'
                 onClick={handleAddLink}
                 className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl h-[40px]'
               >
