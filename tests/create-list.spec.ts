@@ -35,8 +35,8 @@ test('test', async ({ page }) => {
 
   createListButton.click();
 
-  const viewListHeader = await page.locator('[data-testid="view-list-header"]');
-  await expect(viewListHeader).toBeVisible();
+  const listHeader = await page.locator('[data-testid="list-header"]');
+  await expect(listHeader).toBeVisible();
 
   const homeLink = await page.locator('[data-testid="home-header-link"]');
 

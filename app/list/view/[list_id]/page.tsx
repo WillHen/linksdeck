@@ -57,7 +57,10 @@ export default async function ViewListPage({ params }: { params: Params }) {
             className='flex justify-start items-start flex-col w-[288px]'
             style={{ width: '288px' }}
           >
-            <p className='self-stretch text-[#121417] text-[32px] font-bold leading-10'>
+            <p
+              data-testid='list-header'
+              className='self-stretch text-[#121417] text-[32px] font-bold leading-10'
+            >
               {title}
             </p>
           </div>
