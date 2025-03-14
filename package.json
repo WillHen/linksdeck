@@ -24,6 +24,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "jest-fixed-jsdom": "^0.0.9",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.468.0",
     "next": "latest",
     "next-share": "^0.27.0",
