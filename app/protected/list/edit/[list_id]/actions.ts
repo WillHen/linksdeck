@@ -1,16 +1,16 @@
 import { supabase } from '@/lib/supabaseClient';
 
-import { getLinksFromSupabase, getListsFromSupabase } from '@/app/utils';
-
-type EditableLink = {
-  new_id?: string;
-  title: string;
+interface Link {
   id?: string;
-  description: string | null;
+  title: string;
+  description: string;
   url: string;
-};
+}
+
 export async function fetchListAndLinks(list_id: string) {
-  const { data: listData, error: listError } = await getListsFromSupabase(supabase)
+  const { data: listData, error: listError } = await supabase
+    .from('lists')
+    .select('*')
     .eq('id', list_id)
     .single();
 
@@ -18,7 +18,9 @@ export async function fetchListAndLinks(list_id: string) {
     throw new Error(listError.message);
   }
 
-  const { data: linksData, error: linksError } = await getLinksFromSupabase(supabase)
+  const { data: linksData, error: linksError } = await supabase
+    .from('links')
+    .select('*')
     .eq('list_id', list_id);
 
   if (linksError) {
@@ -32,7 +34,7 @@ export async function saveListAndLinks(
   list_id: string,
   title: string,
   description: string,
-  links: EditableLink[],
+  links: Link[],
   user_id: string
 ) {
   const { error: listError } = await supabase
