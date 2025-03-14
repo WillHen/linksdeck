@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 interface Link {
   id?: string;
   title: string;
-  description: string;
+  description?: string;
   url: string;
 }
 
@@ -33,7 +33,7 @@ export async function fetchListAndLinks(list_id: string) {
 export async function saveListAndLinks(
   list_id: string,
   title: string,
-  description: string,
+  description?: string,
   links: Link[],
   user_id: string
 ) {
