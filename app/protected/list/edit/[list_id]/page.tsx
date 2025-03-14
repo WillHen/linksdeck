@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
-import isEqual from 'lodash/isequal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -13,35 +12,14 @@ import { fetchListAndLinks, saveListAndLinks } from './actions';
 import { LinkDetails } from './LinkDetails';
 import { SkeletonLoader } from './SkeleonLoader';
 
-type EditableLink = {
-  new_id?: string;
+interface Link {
   title: string;
-  id?: string;
-  description: string | null;
+  description: string;
   url: string;
-};
-
-type FormValues = {
-  title: string;
-  description: string | null;
-  links: EditableLink[];
-};
-
-const hasFormChanges = (
-  initialValues: FormValues,
-  currentValues: FormValues
-) => {
-  return !isEqual(initialValues, currentValues);
-};
-
-const validateLinks = (links: EditableLink[]) => {
-  for (const link of links) {
-    if (!link.title || !link.url) {
-      return false;
-    }
-  }
-  return true;
-};
+  id?: string;
+  user_id?: string;
+  new_id?: string;
+}
 
 export default function EditListPage() {
   const router = useRouter();
@@ -53,24 +31,7 @@ export default function EditListPage() {
   const [formError, setFormError] = useState('');
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
   const [user_id, setUser_id] = useState('');
-  const [links, setLinks] = useState<EditableLink[]>([]);
-  const [initialValues, setInitialValues] = useState<{
-    title: string;
-    description: string | null;
-    links: EditableLink[];
-  }>({
-    title: '',
-    description: '',
-    links: [] as EditableLink[]
-  });
-
-  const hasChanges = hasFormChanges(initialValues, {
-    title,
-    description,
-    links
-  });
-
-  const isFormValid = validateLinks(links) && !formError;
+  const [links, setLinks] = useState<Link[]>([]);
 
   const [isClient, setIsClient] = useState(false);
 
@@ -145,21 +106,10 @@ export default function EditListPage() {
         const { listData, linksData } = await fetchListAndLinks(
           list_id as string
         );
-        setUser_id(listData.user_id as string);
+        setUser_id(listData.user_id);
         setTitle(listData.title);
-        setDescription(listData.description as string);
-        const editableLinksArray: EditableLink[] = linksData.map((link) => ({
-          id: link.id,
-          title: link.title,
-          description: link.description,
-          url: link.url
-        }));
-        setLinks(editableLinksArray);
-        setInitialValues({
-          title: listData.title,
-          description: listData.description,
-          links: editableLinksArray
-        });
+        setDescription(listData.description);
+        setLinks(linksData);
         setLoading(false);
       } catch (err) {
         if (err instanceof Error) {
@@ -306,7 +256,6 @@ export default function EditListPage() {
                 <div className='flex justify-start items-center flex-col'>
                   <button
                     data-testid='update-list-button'
-                    disabled={!hasChanges || !isFormValid}
                     type='submit'
                     className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'
                   >
