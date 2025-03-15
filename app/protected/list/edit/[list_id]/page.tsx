@@ -9,17 +9,16 @@ import isEqual from 'lodash.isequal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-import { fetchListAndLinks, saveListAndLinks } from './actions';
+import {
+  fetchListAndLinks,
+  saveListAndLinks,
+  handleDeleteList,
+  handleLinksChange
+} from './actions';
 import { LinkDetails } from './LinkDetails';
 import { SkeletonLoader } from './SkeleonLoader';
 
-type EditableLink = {
-  new_id?: string;
-  title: string;
-  id?: string;
-  description: string | null;
-  url: string;
-};
+import type { EditableLink } from '@/app/types/Links';
 
 type FormValues = {
   title: string;
@@ -81,35 +80,6 @@ export default function EditListPage() {
     ]);
   };
 
-  const handleDeleteList = async (listId: string) => {
-    try {
-      // Delete associated links
-      const { error: linksError } = await supabase
-        .from('links')
-        .delete()
-        .eq('list_id', listId);
-
-      if (linksError) {
-        throw new Error(linksError.message);
-      }
-
-      // Delete the list
-      const { error: listError } = await supabase
-        .from('lists')
-        .delete()
-        .eq('id', listId);
-
-      if (listError) {
-        throw new Error(listError.message);
-      }
-
-      router.push('/protected');
-    } catch (error: unknown) {
-      const message = (error as Error).message;
-      console.error('Error deleting list and links:', message);
-    }
-  };
-
   const handleDeleteLink = (index: number) => {
     const newLinks = links.filter((_, i) => i !== index);
     const linkToDelete = links[index];
@@ -120,23 +90,6 @@ export default function EditListPage() {
       ]);
     }
     setLinks([...newLinks]);
-  };
-
-  const handleLinksChange = (
-    index: number,
-    value: { title: string; url: string }
-  ) => {
-    const newLinks = [...links];
-    const updatedUrl =
-      value.url.startsWith('http://') || value.url.startsWith('https://')
-        ? value.url
-        : `http://${value.url}`;
-    newLinks[index] = {
-      ...newLinks[index],
-      title: value.title,
-      url: updatedUrl
-    };
-    setLinks(newLinks);
   };
 
   useEffect(() => {
@@ -196,7 +149,7 @@ export default function EditListPage() {
       }
       router.push(`/list/view/${list_id}`);
     } catch (err) {
-      alert('Error saving list and links: ' + err);
+      console.error('Error saving list and links: ' + err);
     }
   };
 
@@ -226,7 +179,14 @@ export default function EditListPage() {
                   data-testid='delete-list-button'
                   icon={faTrash}
                   className='text-[#121417] ml-2 cursor-pointer'
-                  onClick={() => handleDeleteList(list_id as string)}
+                  onClick={async () => {
+                    try {
+                      await handleDeleteList(list_id as string);
+                      router.push('/protected');
+                    } catch (err) {
+                      console.error('Error deleting list:', err);
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -277,7 +237,14 @@ export default function EditListPage() {
               linkIndex={index}
               title={link.title}
               url={link.url}
-              onChange={handleLinksChange}
+              onChange={(linkIndex, { title, url }) => {
+                const newLinks = handleLinksChange(
+                  index,
+                  { title: title, url: url },
+                  links
+                );
+                setLinks(newLinks);
+              }}
               onDeleteLink={() => handleDeleteLink(index)}
             />
           ))}

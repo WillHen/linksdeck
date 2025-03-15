@@ -2,13 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
 
-type EditableLink = {
-  new_id?: string;
-  title: string;
-  id?: string;
-  description: string | null;
-  url: string;
-};
+import type { EditableLink } from '@/app/types/Links';
 
 
 export async function fetchListAndLinks(list_id: string) {
@@ -36,6 +30,47 @@ export async function fetchListAndLinks(list_id: string) {
 
   return { listData, linksData: EditableLinks };
 }
+
+export const handleDeleteList = async (listId: string) => {
+  // Delete associated links
+  const { error: linksError } = await supabase
+    .from('links')
+    .delete()
+    .eq('list_id', listId);
+
+  if (linksError) {
+    throw new Error(linksError.message);
+  }
+
+  // Delete the list
+  const { error: listError } = await supabase
+    .from('lists')
+    .delete()
+    .eq('id', listId);
+
+  if (listError) {
+    throw new Error(listError.message);
+  }
+};
+
+
+export const handleLinksChange = (
+  index: number,
+  value: { title: string; url: string },
+  links: EditableLink[],
+) => {
+  const newLinks = [...links];
+  const updatedUrl =
+    value.url.startsWith('http://') || value.url.startsWith('https://')
+      ? value.url
+      : `http://${value.url}`;
+  newLinks[index] = {
+    ...newLinks[index],
+    title: value.title,
+    url: updatedUrl
+  };
+  return newLinks;
+};
 
 export async function saveListAndLinks(
   list_id: string,
