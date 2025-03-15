@@ -122,7 +122,7 @@ export default function EditListPage() {
     setLinks([...newLinks]);
   };
 
-  const handleChange = (
+  const handleLinksChange = (
     index: number,
     value: { title: string; url: string }
   ) => {
@@ -148,17 +148,11 @@ export default function EditListPage() {
         setUser_id(listData.user_id as string);
         setTitle(listData.title);
         setDescription(listData.description as string);
-        const editableLinksArray: EditableLink[] = linksData.map((link) => ({
-          id: link.id,
-          title: link.title,
-          description: link.description,
-          url: link.url
-        }));
-        setLinks(editableLinksArray);
+        setLinks(linksData);
         setInitialValues({
           title: listData.title,
           description: listData.description,
-          links: editableLinksArray
+          links: linksData
         });
         setLoading(false);
       } catch (err) {
@@ -283,7 +277,7 @@ export default function EditListPage() {
               linkIndex={index}
               title={link.title}
               url={link.url}
-              onChange={handleChange}
+              onChange={handleLinksChange}
               onDeleteLink={() => handleDeleteLink(index)}
             />
           ))}
