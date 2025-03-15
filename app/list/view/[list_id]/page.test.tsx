@@ -1,19 +1,19 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
+import { render, screen, waitFor } from '@testing-library/react';
 import ViewListPage from './page';
 
-jest.mock('next/headers', () => ({
-  cookies: jest.fn(() => ({
-    get: jest.fn(() => ({ value: 'test-cookie-value' })),
-    getAll: jest.fn(() => [{ name: 'test-cookie', value: 'test-cookie-value' }])
-  }))
+// Mock the underlying functions
+jest.mock('@/app/utils', () => ({
+  getListsFromSupabase: jest.fn(),
+  getLinksFromSupabase: jest.fn()
 }));
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+jest.mock('@/utils/supabase/server', () => ({
+  createClient: jest.fn()
+}));
 
-// Mock list and links response
+import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
+
 const listData = { title: 'Test Title', description: 'Test Description' };
 const linksData = [
   {
@@ -30,24 +30,28 @@ const linksData = [
   }
 ];
 
-const server = setupServer(
-  http.get(`${SUPABASE_URL}/rest/v1/lists`, () => {
-    return HttpResponse.json(listData);
-  }),
-  http.get(`${SUPABASE_URL}/rest/v1/links`, () => {
-    return HttpResponse.json(linksData);
-  })
-);
-
-// Ideally you'd move this to a setupTests file
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
 describe('ViewListPage', () => {
+  beforeAll(() => {
+    (getListsFromSupabase as jest.Mock).mockReturnValue({
+      eq: () => ({ single: () => ({ data: listData, error: null }) })
+    });
+    (getLinksFromSupabase as jest.Mock).mockReturnValue({
+      eq: () => ({ data: linksData, error: null })
+    });
+  });
+
+  afterAll(() => {
+    jest.resetAllMocks();
+  });
+
   it('renders the list details and links', async () => {
     const Result = await ViewListPage({ params: { list_id: '1' } });
     render(Result);
+
+    // Wait for the list title to be rendered
+    await waitFor(() =>
+      expect(screen.getByText('Test Title')).toBeInTheDocument()
+    );
 
     // Assert list details
     expect(screen.getByText('Test Title')).toBeInTheDocument();

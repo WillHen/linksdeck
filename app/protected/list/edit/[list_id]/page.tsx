@@ -4,22 +4,43 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
+import isEqual from 'lodash.isequal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-import { fetchListAndLinks, saveListAndLinks } from './actions';
+import {
+  fetchListAndLinks,
+  saveListAndLinks,
+  handleDeleteList,
+  handleLinksChange
+} from './actions';
 import { LinkDetails } from './LinkDetails';
 import { SkeletonLoader } from './SkeleonLoader';
 
-interface Link {
+import type { EditableLink } from '@/app/types/Links';
+
+type FormValues = {
   title: string;
-  description: string;
-  url: string;
-  id?: string;
-  user_id?: string;
-  new_id?: string;
-}
+  description: string | null;
+  links: EditableLink[];
+};
+
+const hasFormChanges = (
+  initialValues: FormValues,
+  currentValues: FormValues
+) => {
+  return !isEqual(initialValues, currentValues);
+};
+
+const validateLinks = (links: EditableLink[]) => {
+  for (const link of links) {
+    if (!link.title || !link.url) {
+      return false;
+    }
+  }
+  return true;
+};
 
 export default function EditListPage() {
   const router = useRouter();
@@ -31,7 +52,24 @@ export default function EditListPage() {
   const [formError, setFormError] = useState('');
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
   const [user_id, setUser_id] = useState('');
-  const [links, setLinks] = useState<Link[]>([]);
+  const [links, setLinks] = useState<EditableLink[]>([]);
+  const [initialValues, setInitialValues] = useState<{
+    title: string;
+    description: string | null;
+    links: EditableLink[];
+  }>({
+    title: '',
+    description: '',
+    links: [] as EditableLink[]
+  });
+
+  const hasChanges = hasFormChanges(initialValues, {
+    title,
+    description,
+    links
+  });
+
+  const isFormValid = validateLinks(links) && !formError;
 
   const [isClient, setIsClient] = useState(false);
 
@@ -40,35 +78,6 @@ export default function EditListPage() {
       ...links,
       { title: '', description: '', url: '', new_id: uuidv4() }
     ]);
-  };
-
-  const handleDeleteList = async (listId: string) => {
-    try {
-      // Delete associated links
-      const { error: linksError } = await supabase
-        .from('links')
-        .delete()
-        .eq('list_id', listId);
-
-      if (linksError) {
-        throw new Error(linksError.message);
-      }
-
-      // Delete the list
-      const { error: listError } = await supabase
-        .from('lists')
-        .delete()
-        .eq('id', listId);
-
-      if (listError) {
-        throw new Error(listError.message);
-      }
-
-      router.push('/protected');
-    } catch (error: unknown) {
-      const message = (error as Error).message;
-      console.error('Error deleting list and links:', message);
-    }
   };
 
   const handleDeleteLink = (index: number) => {
@@ -83,33 +92,21 @@ export default function EditListPage() {
     setLinks([...newLinks]);
   };
 
-  const handleChange = (
-    index: number,
-    value: { title: string; url: string }
-  ) => {
-    const newLinks = [...links];
-    const updatedUrl =
-      value.url.startsWith('http://') || value.url.startsWith('https://')
-        ? value.url
-        : `http://${value.url}`;
-    newLinks[index] = {
-      ...newLinks[index],
-      title: value.title,
-      url: updatedUrl
-    };
-    setLinks(newLinks);
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const { listData, linksData } = await fetchListAndLinks(
           list_id as string
         );
-        setUser_id(listData.user_id);
+        setUser_id(listData.user_id as string);
         setTitle(listData.title);
-        setDescription(listData.description);
+        setDescription(listData.description as string);
         setLinks(linksData);
+        setInitialValues({
+          title: listData.title,
+          description: listData.description,
+          links: linksData
+        });
         setLoading(false);
       } catch (err) {
         if (err instanceof Error) {
@@ -152,7 +149,7 @@ export default function EditListPage() {
       }
       router.push(`/list/view/${list_id}`);
     } catch (err) {
-      alert('Error saving list and links: ' + err);
+      console.error('Error saving list and links: ' + err);
     }
   };
 
@@ -182,7 +179,14 @@ export default function EditListPage() {
                   data-testid='delete-list-button'
                   icon={faTrash}
                   className='text-[#121417] ml-2 cursor-pointer'
-                  onClick={() => handleDeleteList(list_id as string)}
+                  onClick={async () => {
+                    try {
+                      await handleDeleteList(list_id as string);
+                      router.push('/protected');
+                    } catch (err) {
+                      console.error('Error deleting list:', err);
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -233,7 +237,14 @@ export default function EditListPage() {
               linkIndex={index}
               title={link.title}
               url={link.url}
-              onChange={handleChange}
+              onChange={(linkIndex, { title, url }) => {
+                const newLinks = handleLinksChange(
+                  index,
+                  { title: title, url: url },
+                  links
+                );
+                setLinks(newLinks);
+              }}
               onDeleteLink={() => handleDeleteLink(index)}
             />
           ))}
@@ -256,6 +267,7 @@ export default function EditListPage() {
                 <div className='flex justify-start items-center flex-col'>
                   <button
                     data-testid='update-list-button'
+                    disabled={!hasChanges || !isFormValid}
                     type='submit'
                     className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'
                   >
