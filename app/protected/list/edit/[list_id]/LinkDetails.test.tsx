@@ -46,25 +46,35 @@ describe('LinkDetails', () => {
     const titleInput = screen.getByTestId('link-title-0');
     const urlInput = screen.getByTestId('link-url-0');
     // Update the title
+    // Update the title
     fireEvent.change(titleInput, { target: { value: 'Updated Title' } });
-    expect(mockOnChange).toHaveBeenCalledWith(
+    fireEvent.change(urlInput, { target: { value: 'http://updated.com' } });
+
+    // Assert that the mock function was called twice
+    expect(mockOnChange).toHaveBeenCalledTimes(2);
+
+    // Assert the arguments for the first call
+    expect(mockOnChange).toHaveBeenNthCalledWith(
+      1, // First call
       0,
       { title: 'Updated Title', url: 'http://example.com' },
       '1',
-      undefined
+      undefined // Updated title, original URL
     );
 
-    // Update the URL
-    // fireEvent.change(urlInput, { target: { value: 'http://updated.com' } });
-    // expect(mockOnChange).toHaveBeenCalledWith(
-    //   '1', // id
-    //   undefined, // new_id
-    //   0, // linkIndex
-    //   {
-    //     title: 'Updated Title', // Title remains unchanged
-    //     url: 'http://updated.com'
-    //   }
-    // );
+    // Assert the arguments for the second call
+    expect(mockOnChange).toHaveBeenNthCalledWith(
+      2, // Second call
+      0,
+      {
+        id: '1',
+        new_id: undefined,
+        title: 'Test Title',
+        url: 'http://updated.com'
+      },
+      '1',
+      undefined // Original title, updated URL
+    );
   });
 
   test('cancels edit mode', () => {
