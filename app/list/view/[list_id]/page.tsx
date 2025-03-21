@@ -14,7 +14,6 @@ async function fetchListAndLinks(list_id: string) {
   )
     .eq('id', list_id)
     .single();
-
   if (listError) {
     throw new Error(listError.message);
   }

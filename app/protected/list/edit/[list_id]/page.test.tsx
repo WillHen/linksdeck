@@ -63,6 +63,7 @@ jest.mock('@/lib/supabaseClient', () => {
 });
 
 jest.mock('./actions', () => ({
+  ...jest.requireActual('./actions'),
   fetchListAndLinks: jest.fn(),
   saveListAndLinks: jest.fn()
 }));

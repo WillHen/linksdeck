@@ -7,10 +7,10 @@ interface Link {
   url: string;
 }
 
+import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
+
 export async function fetchListAndLinks(list_id: string) {
-  const { data: listData, error: listError } = await supabase
-    .from('lists')
-    .select('*')
+  const { data: listData, error: listError } = await getListsFromSupabase(supabase)
     .eq('id', list_id)
     .single();
 
@@ -18,17 +18,63 @@ export async function fetchListAndLinks(list_id: string) {
     throw new Error(listError.message);
   }
 
-  const { data: linksData, error: linksError } = await supabase
-    .from('links')
-    .select('*')
+  const { data: linksData, error: linksError } = await getLinksFromSupabase(supabase)
     .eq('list_id', list_id);
 
   if (linksError) {
     throw new Error(linksError.message);
   }
 
-  return { listData, linksData };
+  const EditableLinks = linksData.map((link) => ({
+    id: link.id,
+    title: link.title,
+    description: link.description || '',
+    url: link.url
+  }));
+
+  return { listData, linksData: EditableLinks };
 }
+
+export const handleDeleteList = async (listId: string) => {
+  // Delete associated links
+  const { error: linksError } = await supabase
+    .from('links')
+    .delete()
+    .eq('list_id', listId);
+
+  if (linksError) {
+    throw new Error(linksError.message);
+  }
+
+  // Delete the list
+  const { error: listError } = await supabase
+    .from('lists')
+    .delete()
+    .eq('id', listId);
+
+  if (listError) {
+    throw new Error(listError.message);
+  }
+};
+
+
+export const handleLinksChange = (
+  index: number,
+  value: { title: string; url: string },
+  links: Link[],
+) => {
+  const newLinks = [...links];
+  const updatedUrl =
+    value.url.startsWith('http://') || value.url.startsWith('https://')
+      ? value.url
+      : `http://${value.url}`;
+  newLinks[index] = {
+    ...newLinks[index],
+    title: value.title,
+    url: updatedUrl
+  };
+  return newLinks;
+};
 
 export async function saveListAndLinks(
   list_id: string,
