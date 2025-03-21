@@ -153,7 +153,7 @@ export default function EditListPage() {
       validationSchema={validationSchema}
       initialValues={initialValues}
       enableReinitialize
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={(values) => {
         handleSubmit(values);
       }}
     >
