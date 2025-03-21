@@ -23,6 +23,7 @@
     "autoprefixer": "10.4.20",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "formik": "^2.4.6",
     "jest-fixed-jsdom": "^0.0.9",
     "lodash": "^4.17.21",
     "lodash.isequal": "^4.5.0",
@@ -34,7 +35,8 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-share": "^5.2.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

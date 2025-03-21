@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  within
-} from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import EditListPage from './page';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
@@ -91,7 +85,6 @@ describe('EditListPage', () => {
         {
           id: 'link1',
           title: 'Link 1',
-          description: 'Description 1',
           url: 'https://example.com'
         }
       ]
@@ -139,7 +132,6 @@ describe('EditListPage', () => {
           {
             id: 'link1',
             title: 'Link 1',
-            description: 'Description 1',
             url: 'https://example.com'
           }
         ],
@@ -149,36 +141,18 @@ describe('EditListPage', () => {
     });
   });
 
-  test('handle cancelling empty link', async () => {
-    render(<EditListPage />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
-      expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('add-link-button'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('link-1')).toBeInTheDocument();
-    });
-
-    const linkContainer = screen.getByTestId('link-1');
-
-    fireEvent.click(within(linkContainer).getByTestId('cancel-button'));
-
-    expect(screen.queryByTestId('link-1')).not.toBeInTheDocument();
-  });
-
   test('handles link deletion', async () => {
     render(<EditListPage />);
 
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
       expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
+
+      expect(screen.queryByTestId('link-title-0')).toBeInTheDocument();
+      expect(screen.queryByTestId('link-url-0')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId('link-delete'));
+    fireEvent.click(screen.getByTestId('delete-link-0-button'));
 
     await waitFor(() => {
       expect(screen.queryByTestId('link-title-0')).not.toBeInTheDocument();

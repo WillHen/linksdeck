@@ -1,9 +1,13 @@
 import { supabase } from '@/lib/supabaseClient';
 
+interface Link {
+  id?: string;
+  title: string;
+  description?: string;
+  url: string;
+}
+
 import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
-
-import type { EditableLink } from '@/app/types/Links';
-
 
 export async function fetchListAndLinks(list_id: string) {
   const { data: listData, error: listError } = await getListsFromSupabase(supabase)
@@ -57,7 +61,7 @@ export const handleDeleteList = async (listId: string) => {
 export const handleLinksChange = (
   index: number,
   value: { title: string; url: string },
-  links: EditableLink[],
+  links: Link[],
 ) => {
   const newLinks = [...links];
   const updatedUrl =
@@ -75,8 +79,8 @@ export const handleLinksChange = (
 export async function saveListAndLinks(
   list_id: string,
   title: string,
-  description: string,
-  links: EditableLink[],
+  description?: string,
+  links: Link[],
   user_id: string
 ) {
   const { error: listError } = await supabase

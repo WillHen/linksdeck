@@ -4,92 +4,88 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
-import isEqual from 'lodash.isequal';
-
+import { Formik, Form, Field, FieldArray } from 'formik';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-import {
-  fetchListAndLinks,
-  saveListAndLinks,
-  handleDeleteList,
-  handleLinksChange
-} from './actions';
+import { fetchListAndLinks, saveListAndLinks } from './actions';
 import { LinkDetails } from './LinkDetails';
+import * as Yup from 'yup';
+import isEqual from 'lodash/isEqual';
 import { SkeletonLoader } from './SkeleonLoader';
 
-import type { EditableLink } from '@/app/types/Links';
-
-type FormValues = {
+interface Link {
   title: string;
-  description: string | null;
-  links: EditableLink[];
+  url: string;
+  id?: string;
+  description?: string | undefined;
+  new_id?: string;
+}
+
+type FormDetails = {
+  title: string;
+  description: string;
+  links: Link[];
 };
 
-const hasFormChanges = (
-  initialValues: FormValues,
-  currentValues: FormValues
-) => {
-  return !isEqual(initialValues, currentValues);
-};
-
-const validateLinks = (links: EditableLink[]) => {
-  for (const link of links) {
-    if (!link.title || !link.url) {
-      return false;
-    }
-  }
-  return true;
-};
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required('List title is required'),
+  description: Yup.string(),
+  links: Yup.array().of(
+    Yup.object().shape({
+      title: Yup.string().required('Link title is required'),
+      url: Yup.string()
+        /* eslint-disable no-useless-escape */
+        .matches(
+          /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i,
+          'Invalid URL'
+        )
+        /* eslint-enable no-useless-escape */
+        .required('Link URL is required')
+    })
+  )
+});
 
 export default function EditListPage() {
   const router = useRouter();
   const { list_id } = useParams();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(true);
   const [, setError] = useState('');
-  const [formError, setFormError] = useState('');
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
   const [user_id, setUser_id] = useState('');
-  const [links, setLinks] = useState<EditableLink[]>([]);
-  const [initialValues, setInitialValues] = useState<{
-    title: string;
-    description: string | null;
-    links: EditableLink[];
-  }>({
+  const [initialValues, setInitialValues] = useState({
     title: '',
     description: '',
-    links: [] as EditableLink[]
+    links: [] as Link[]
   });
 
-  const hasChanges = hasFormChanges(initialValues, {
-    title,
-    description,
-    links
-  });
+  const handleDeleteList = async (listId: string) => {
+    try {
+      // Delete associated links
+      const { error: linksError } = await supabase
+        .from('links')
+        .delete()
+        .eq('list_id', listId);
 
-  const isFormValid = validateLinks(links) && !formError;
+      if (linksError) {
+        throw new Error(linksError.message);
+      }
 
-  const [isClient, setIsClient] = useState(false);
+      // Delete the list
+      const { error: listError } = await supabase
+        .from('lists')
+        .delete()
+        .eq('id', listId);
 
-  const handleAddLink = () => {
-    setLinks([
-      ...links,
-      { title: '', description: '', url: '', new_id: uuidv4() }
-    ]);
-  };
+      if (listError) {
+        throw new Error(listError.message);
+      }
 
-  const handleDeleteLink = (index: number) => {
-    const newLinks = links.filter((_, i) => i !== index);
-    const linkToDelete = links[index];
-    if (linkToDelete && linkToDelete.id) {
-      setLinksToDelete((prevLinksToDelete) => [
-        ...prevLinksToDelete,
-        linkToDelete.id as string
-      ]);
+      router.push('/protected');
+    } catch (error: unknown) {
+      const message = (error as Error).message;
+      console.error('Error deleting list and links:', message);
     }
-    setLinks([...newLinks]);
   };
 
   useEffect(() => {
@@ -98,14 +94,15 @@ export default function EditListPage() {
         const { listData, linksData } = await fetchListAndLinks(
           list_id as string
         );
-        setUser_id(listData.user_id as string);
-        setTitle(listData.title);
-        setDescription(listData.description as string);
-        setLinks(linksData);
+        setUser_id(listData.user_id);
         setInitialValues({
           title: listData.title,
           description: listData.description,
-          links: linksData
+          links: linksData.map((link) => ({
+            id: link.id,
+            title: link.title,
+            url: link.url
+          }))
         });
         setLoading(false);
       } catch (err) {
@@ -120,19 +117,13 @@ export default function EditListPage() {
     fetchData();
   }, [list_id]);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!title) {
-      setFormError('List title is required');
-      return;
-    }
-    setFormError('');
+  const handleSubmit = async (values: FormDetails) => {
     try {
       await saveListAndLinks(
         list_id as string,
-        title,
-        description,
-        links,
+        values.title,
+        values.description,
+        values.links,
         user_id
       );
 
@@ -149,138 +140,152 @@ export default function EditListPage() {
       }
       router.push(`/list/view/${list_id}`);
     } catch (err) {
-      console.error('Error saving list and links: ' + err);
+      alert('Error saving list and links: ' + err);
     }
   };
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) return <></>;
+  if (loading) {
+    return <SkeletonLoader />;
+  }
 
   return (
-    <>
-      {loading ? (
-        <SkeletonLoader />
-      ) : (
-        <div className='max-w-[960px] flex flex-1 justify-start items-start flex-col'>
-          <div className='flex flex-wrap self-stretch justify-between items-start flex-row gap-3 p-4'>
-            <div className='min-w-[288px] flex justify-start items-start flex-col gap-3'>
-              <div
-                data-testid='edit-list-header'
-                className='flex flex-row items-center w-[352px]'
-                style={{ width: '352px' }}
-              >
-                <p className='self-stretch text-[#121417] text-[32px] font-bold leading-10'>
-                  Edit list
-                </p>
-                <FontAwesomeIcon
-                  data-testid='delete-list-button'
-                  icon={faTrash}
-                  className='text-[#121417] ml-2 cursor-pointer'
-                  onClick={async () => {
-                    try {
-                      await handleDeleteList(list_id as string);
-                      router.push('/protected');
-                    } catch (err) {
-                      console.error('Error deleting list:', err);
-                    }
-                  }}
+    <Formik
+      validationSchema={validationSchema}
+      initialValues={initialValues}
+      enableReinitialize
+      onSubmit={(values) => {
+        handleSubmit(values);
+      }}
+    >
+      {({ values, setFieldValue, errors }) => {
+        return (
+          <Form>
+            <div>
+              <div className='flex justify-start items-start flex-col gap-3'>
+                <div
+                  data-testid='edit-list-header'
+                  className='flex flex-row items-center'
+                >
+                  <p className='self-stretch text-[#121417] font-bold leading-10 text-3xl'>
+                    Edit list
+                  </p>
+                  <FontAwesomeIcon
+                    data-testid='delete-list-button'
+                    icon={faTrash}
+                    className='text-[#121417] ml-2 cursor-pointer'
+                    onClick={() => handleDeleteList(list_id as string)}
+                  />
+                </div>
+              </div>
+              <div className='flex flex-col'>
+                <div className='flex justify-start items-start flex-col gap-3'>
+                  <div className='flex flex-row items-center'>
+                    <p className='self-stretch text-[#121417] leading-10 text-xl'>
+                      List title
+                    </p>
+                  </div>
+                </div>
+                <Field
+                  data-testid='list-title-input'
+                  type='text'
+                  name='title'
+                  placeholder='List Description'
+                  className='self-stretch text-[#121417] font-medium leading-6 bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-10 w-full mb-2'
+                />
+                <div className='flex justify-start items-start flex-col gap-3'>
+                  <div className='flex flex-row items-center'>
+                    <p className='self-stretch text-[#121417] leading-10 text-xl'>
+                      List Description
+                    </p>
+                  </div>
+                </div>
+                <Field
+                  type='text'
+                  data-testid='list-description-input'
+                  name='description'
+                  placeholder='List description'
+                  className='self-stretch text-[#121417] font-medium leading-6 bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl w-full mb-2 h-10'
                 />
               </div>
-            </div>
-          </div>
-          <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
-            <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
-              <div className='flex self-stretch justify-start items-start flex-col pb-2'>
-                <p className='self-stretch text-[#121417] font-medium leading-6'>
-                  List title
-                </p>
+              <div className='flex flex-col'>
+                <div className='flex justify-start items-start flex-col gap-3'>
+                  <div className='flex flex-row items-center'>
+                    <p className='self-stretch text-[#121417] leading-10 text-xl'>
+                      Links
+                    </p>
+                  </div>
+                </div>
+                <FieldArray name='links'>
+                  {({ push, remove }) => (
+                    <div>
+                      {values.links.map((link, index) => (
+                        <LinkDetails
+                          key={index}
+                          linkIndex={index}
+                          title={link.title}
+                          url={link.url}
+                          id={link.id}
+                          new_id={link.new_id}
+                          onChange={(index, value, id, new_id) => {
+                            console.log(value);
+                            if (id) {
+                              setFieldValue(`links[${index}]`, {
+                                id,
+                                ...value
+                              });
+                            } else if (new_id) {
+                              setFieldValue(`links[${index}]`, {
+                                new_id,
+                                ...value
+                              });
+                            } else {
+                              setFieldValue(`links[${index}]`, {
+                                new_id: uuidv4(),
+                                ...value
+                              });
+                            }
+                          }}
+                          onDeleteLink={(index) => {
+                            remove(index);
+                            if (link.id) {
+                              const id = link.id as string;
+                              setLinksToDelete((prev) => [...prev, id]);
+                            }
+                          }}
+                        />
+                      ))}
+                      <button
+                        data-testid='add-link-button'
+                        className='flex flex-1 w-full justify-center items-center flex-row px-4 h-9 rounded-xl bg-[#F0F2F5] mb-3 mt-2'
+                        onClick={() =>
+                          push({ title: '', url: '', new_id: uuidv4() })
+                        }
+                      >
+                        <span className='text-sm text-center font-bold'>
+                          Add Link
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </FieldArray>
               </div>
-              <input
-                data-testid='list-title-input'
-                type='text'
-                className='flex self-stretch justify-start items-center flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[32px] w-full'
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              {formError && (
-                <p className='text-red-500 text-sm mt-2'>{formError}</p>
-              )}
-            </div>
-          </div>
-          <div className='max-w-[480px] flex flex-wrap justify-start items-end flex-row gap-4 py-3 px-4'>
-            <div className='min-w-[160px] flex flex-1 justify-start items-start flex-col'>
-              <div className='flex self-stretch justify-start items-start flex-col pb-2'>
-                <p className='self-stretch text-[#121417] font-medium leading-6'>
-                  Description
-                </p>
-              </div>
-              <textarea
-                data-testid='list-description-input'
-                className='min-h-[144px] flex self-stretch flex-1 justify-start items-start flex-row p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl w-full'
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className='flex self-stretch justify-start items-start flex-col pt-4 pb-2 px-4'>
-            <p className='self-stretch text-[#121417] text-lg font-bold leading-[23px]'>
-              Links in this list
-            </p>
-          </div>
-          {links.map((link, index) => (
-            <LinkDetails
-              key={link.id || link.new_id}
-              id={link.id as string}
-              linkIndex={index}
-              title={link.title}
-              url={link.url}
-              onChange={(linkIndex, { title, url }) => {
-                const newLinks = handleLinksChange(
-                  index,
-                  { title: title, url: url },
-                  links
-                );
-                setLinks(newLinks);
-              }}
-              onDeleteLink={() => handleDeleteLink(index)}
-            />
-          ))}
-          <form onSubmit={handleSubmit} className='w-full'>
-            <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
-              <div
-                data-testid='add-link-button'
-                onClick={handleAddLink}
-                className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl h-[40px]'
+              <button
+                data-testid='update-list-button'
+                type='submit'
+                className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] h-9 rounded-xl'
+                disabled={
+                  isEqual(initialValues, values) ||
+                  Object.keys(errors).length > 0
+                }
               >
-                <div className='flex justify-start items-center flex-col'>
-                  <span className='text-[#121417] text-sm text-center font-bold leading-[21px]'>
-                    Add link
-                  </span>
-                </div>
-              </div>
+                <span className='text-[#FFFFFF] text-sm text-center font-bold'>
+                  Save changes
+                </span>
+              </button>
             </div>
-            <div className='flex self-stretch justify-start items-start flex-row py-3 px-4'>
-              <div className='min-w-[84px] max-w-[480px] flex flex-1 justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'>
-                <div className='flex justify-start items-center flex-col'>
-                  <button
-                    data-testid='update-list-button'
-                    disabled={!hasChanges || !isFormValid}
-                    type='submit'
-                    className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] rounded-xl h-[40px]'
-                  >
-                    <span className='text-[#FFFFFF] text-sm text-center font-bold leading-[21px]'>
-                      Save changes
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
-    </>
+          </Form>
+        );
+      }}
+    </Formik>
   );
 }
