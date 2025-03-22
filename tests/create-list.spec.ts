@@ -16,21 +16,24 @@ test('test', async ({ page }) => {
   );
   await listDescriptionInput.fill('Sports websites I read a lot');
 
-  const linkSet0 = await page.locator('[data-testid="link-set-0"]');
+  const addLinkButton = await page.locator('[data-testid="add-link-button"]');
+
+  addLinkButton.click();
+  const linkSet0 = await page.locator('[data-testid="link-0"]');
   await expect(linkSet0).toBeVisible();
 
   // Fill in the link title input within link-set-0
   const linkTitleInput = await linkSet0.locator(
-    '[data-testid="link-title-input"]'
+    '[data-testid="link-title-0"]'
   );
   await linkTitleInput.fill('ESPN soccer');
 
-  const linkUrlInput = await linkSet0.locator('[data-testid="link-url-input"]');
+  const linkUrlInput = await linkSet0.locator('[data-testid="link-url-0"]');
 
   linkUrlInput.fill('https://www.espn.com/soccer');
 
   const createListButton = await page.locator(
-    '[data-testid="create-list-button"]'
+    '[data-testid="update-list-button"]'
   );
 
   createListButton.click();

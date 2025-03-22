@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Field, ErrorMessage } from 'formik';
+import { Field, ErrorMessage, useFormikContext } from 'formik';
 interface LinkProps {
   title: string;
   url: string;
@@ -25,6 +25,7 @@ export function LinkDetails({
   onChange,
   onDeleteLink
 }: LinkProps) {
+  const { setFieldValue } = useFormikContext();
   return (
     <div data-testid={`link-${linkIndex}`} className='flex min-w-full'>
       <div className='min-w-full'>
@@ -34,7 +35,7 @@ export function LinkDetails({
           data-testid={`link-title-${linkIndex}`}
           placeholder='Link Title'
           className='self-stretch text-[#121417] font-medium leading-6 p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[40px] w-full mb-2'
-          onChange={(e: { target: { value: string } }) =>
+          onChange={(e: { target: { value: string } }) => {
             onChange(
               linkIndex,
               {
@@ -43,8 +44,8 @@ export function LinkDetails({
               },
               id,
               new_id
-            )
-          }
+            );
+          }}
         />
         <ErrorMessage
           name={`links[${linkIndex}].title`}
@@ -57,6 +58,13 @@ export function LinkDetails({
           data-testid={`link-url-${linkIndex}`}
           placeholder='Link URL'
           className='self-stretch text-[#121417] font-medium leading-6 p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[40px] w-full mb-2'
+          onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+            const value = e.target.value;
+            if (value && !/^(https?:\/\/)/i.test(value)) {
+              // Add http:// if missing
+              setFieldValue(`links[${linkIndex}].url`, `http://${value}`);
+            }
+          }}
           onChange={(e: { target: { value: string } }) => {
             onChange(
               linkIndex,

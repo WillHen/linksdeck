@@ -2,12 +2,11 @@
 import { supabase } from '@/lib/supabaseClient';
 
 interface Link {
-  id?: string;
   title: string;
-  description: string;
   url: string;
-  list_id?: string;
-  user_id?: string;
+  id?: string;
+  description?: string | undefined;
+  new_id?: string;
 }
 
 export const createListAndLinksAction = async (

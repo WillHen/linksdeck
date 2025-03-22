@@ -6,36 +6,16 @@ import { supabase } from '@/lib/supabaseClient';
 
 import { createListAndLinksAction } from './actions';
 
-import { AddLinkForm } from '../edit/[list_id]/AddLinkForm';
+import { ListForm, SkeletonLoader } from '@/app/protected/list/components';
 
-interface Link {
-  title: string;
-  description: string;
-  url: string;
-}
+import type { FormDetails } from '@/app/protected/list/components/ListForm';
 
 export default function AddListPage() {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
-  const [links, setLinks] = useState([{ title: '', description: '', url: '' }]);
+  const [, setError] = useState('');
   const hasUser = useRef(false);
 
-  const handleAddLink = () => {
-    setLinks([...links, { title: '', description: '', url: '' }]);
-  };
-
-  const handleLinkChange = (
-    index: number,
-    field: keyof Link,
-    value: string
-  ) => {
-    const newLinks = links.map((link, i) =>
-      i === index ? { ...link, [field]: value } : link
-    );
-    setLinks(newLinks);
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -53,70 +33,41 @@ export default function AddListPage() {
     }
   }, []);
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    setError('');
-
+  const handleSubmit = async (values: FormDetails) => {
     try {
-      const listId = await createListAndLinksAction(title, description, links);
+      setIsSubmitting(true);
+      const listId = await createListAndLinksAction(
+        values.title,
+        values.description,
+        values.links
+      );
       router.push(`/list/view/${listId}`);
     } catch (error) {
+      setIsSubmitting(false);
       setError(String(error));
     }
   };
 
+  if (isSubmitting) {
+    return <SkeletonLoader />;
+  }
+
   return (
-    <div className='max-w-2xl mx-auto p-4'>
-      <h2 data-testid='create-list-header' className='text-2xl font-bold mb-4'>
-        Create a New List
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div className='mb-4'>
-          <label
-            htmlFor='title'
-            className='block text-sm font-medium text-gray-700'
-          >
-            Title
-          </label>
-          <input
-            data-testid='list-title-input'
-            type='text'
-            id='title'
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
-          />
-        </div>
-        <div className='mb-4'>
-          <label
-            htmlFor='description'
-            className='block text-sm font-medium text-gray-700'
-          >
-            Description
-          </label>
-          <textarea
-            data-testid='list-description-input'
-            id='description'
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
-          />
-        </div>
-        <AddLinkForm
-          links={links}
-          handleAddLink={handleAddLink}
-          handleChange={handleLinkChange}
-        />
-        <button
-          data-testid='create-list-button'
-          type='submit'
-          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+    <div className='flex flex-col gap-5'>
+      <div className='flex justify-start items-start flex-col gap-3'>
+        <div
+          data-testid='create-list-header'
+          className='flex flex-row items-center'
         >
-          Create List
-        </button>
-      </form>
-      {error && <p className='mt-4 text-red-600'>{error}</p>}
+          <p className='self-stretch text-[#121417] font-bold leading-10 text-3xl'>
+            New list
+          </p>
+        </div>
+      </div>
+      <ListForm
+        handleSubmit={handleSubmit}
+        initialValues={{ title: '', description: '', links: [] }}
+      />
     </div>
   );
 }
