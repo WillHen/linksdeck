@@ -7,7 +7,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { fetchListAndLinks, saveListAndLinks } from './actions';
-import { ListForm, SkeletonLoader } from '@/app/protected/list/components';
+import {
+  ListForm,
+  SkeletonLoader,
+  SaveAction
+} from '@/app/protected/list/components';
 
 import type { FormDetails } from '@/app/protected/list/components/ListForm';
 
@@ -138,7 +142,11 @@ export default function EditListPage() {
           />
         </div>
       </div>
-      <ListForm initialValues={initialValues} handleSubmit={handleSubmit} />
+      <ListForm
+        initialValues={initialValues}
+        handleSubmit={handleSubmit}
+        saveAction={SaveAction.Update}
+      />
     </div>
   );
 }

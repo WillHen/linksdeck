@@ -6,7 +6,11 @@ import { supabase } from '@/lib/supabaseClient';
 
 import { createListAndLinksAction } from './actions';
 
-import { ListForm, SkeletonLoader } from '@/app/protected/list/components';
+import {
+  ListForm,
+  SkeletonLoader,
+  SaveAction
+} from '@/app/protected/list/components';
 
 import type { FormDetails } from '@/app/protected/list/components/ListForm';
 
@@ -67,6 +71,7 @@ export default function AddListPage() {
       <ListForm
         handleSubmit={handleSubmit}
         initialValues={{ title: '', description: '', links: [] }}
+        saveAction={SaveAction.Create}
       />
     </div>
   );

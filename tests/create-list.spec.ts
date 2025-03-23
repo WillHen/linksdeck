@@ -33,7 +33,7 @@ test('test', async ({ page }) => {
   linkUrlInput.fill('https://www.espn.com/soccer');
 
   const createListButton = await page.locator(
-    '[data-testid="update-list-button"]'
+    '[data-testid="create-list-button"]'
   );
 
   createListButton.click();

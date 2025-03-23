@@ -14,6 +14,11 @@ interface Link {
   new_id?: string;
 }
 
+export enum SaveAction {
+  Create = 'create',
+  Update = 'update'
+}
+
 export type FormDetails = {
   title: string;
   description: string;
@@ -40,10 +45,12 @@ const validationSchema = Yup.object().shape({
 
 export function ListForm({
   initialValues,
-  handleSubmit
+  handleSubmit,
+  saveAction
 }: {
   initialValues: FormDetails;
   handleSubmit: (values: FormDetails, linksToDelete: string[]) => void;
+  saveAction: SaveAction;
 }) {
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
   return (
@@ -160,7 +167,7 @@ export function ListForm({
               </FieldArray>
             </div>
             <button
-              data-testid='update-list-button'
+              data-testid={`${saveAction}-list-button`}
               type='submit'
               className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] h-9 rounded-xl'
               disabled={
@@ -168,7 +175,7 @@ export function ListForm({
               }
             >
               <span className='text-[#FFFFFF] text-sm text-center font-bold'>
-                Save changes
+                {saveAction === SaveAction.Create ? 'Create' : 'Update'} List
               </span>
             </button>
           </Form>
