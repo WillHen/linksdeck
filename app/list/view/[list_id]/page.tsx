@@ -57,7 +57,7 @@ export default async function ViewListPage({ params }: { params: Params }) {
             style={{ width: '288px' }}
           >
             <p
-              data-testid='list-header'
+              data-testid='view-list-header'
               className='self-stretch text-[#121417] text-[32px] font-bold leading-10'
             >
               {title}

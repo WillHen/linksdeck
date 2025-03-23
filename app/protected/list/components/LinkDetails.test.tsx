@@ -6,6 +6,15 @@ import { LinkDetails } from './LinkDetails';
 const mockOnChange = jest.fn();
 const mockOnDeleteLink = jest.fn();
 
+const mockSetFieldValue = jest.fn(); // Mock setFieldValue from Formik
+
+jest.mock('formik', () => ({
+  ...jest.requireActual('formik'),
+  useFormikContext: () => ({
+    setFieldValue: mockSetFieldValue // Mock setFieldValue
+  })
+}));
+
 const defaultProps = {
   title: 'Test Title',
   url: 'http://example.com',
@@ -29,6 +38,26 @@ const renderWithFormik = (ui, initialValues) => {
 describe('LinkDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  test('adds http:// to the URL if missing on blur', () => {
+    renderWithFormik(<LinkDetails {...defaultProps} />, {
+      links: [{ title: 'Test Title', url: 'example.com' }] // URL without http://
+    });
+
+    const urlInput = screen.getByTestId('link-url-0');
+
+    // Simulate the user typing a URL without http://
+    fireEvent.change(urlInput, { target: { value: 'example.com' } });
+
+    // Simulate the onBlur event
+    fireEvent.blur(urlInput);
+
+    // Assert that setFieldValue was called with the correct value
+    expect(mockSetFieldValue).toHaveBeenCalledWith(
+      'links[0].url',
+      'http://example.com'
+    );
   });
 
   test('renders title and url', () => {
@@ -75,6 +104,14 @@ describe('LinkDetails', () => {
       '1',
       undefined // Original title, updated URL
     );
+  });
+
+  test('cancels edit mode', () => {
+    renderWithFormik(<LinkDetails {...defaultProps} />, {
+      links: [{ title: 'Test Title', url: 'http://example.com' }]
+    });
+    expect(screen.getByDisplayValue('Test Title')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('http://example.com')).toBeInTheDocument();
   });
 
   test('cancels edit mode', () => {

@@ -48,6 +48,7 @@ export function LinkDetails({
           }}
         />
         <ErrorMessage
+          data-testid={`link-title-${linkIndex}-error`}
           name={`links[${linkIndex}].title`}
           component='div'
           className='text-red-500 text-sm mt-1'
@@ -81,6 +82,7 @@ export function LinkDetails({
         />
         <ErrorMessage
           name={`links[${linkIndex}].url`}
+          data-testid={`link-url-${linkIndex}-error`}
           component='div'
           className='text-red-500 text-sm'
         />
