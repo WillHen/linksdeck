@@ -34,7 +34,7 @@ test('test', async ({ page }) => {
     linkUrlInput.fill('bbc.com');
 
     const createListButton = await page.locator(
-        '[data-testid="update-list-button"]'
+        '[data-testid="create-list-button"]'
     );
 
     createListButton.click();
