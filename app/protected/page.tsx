@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-
+import Image from 'next/image';
 import { getListsFromSupabase } from '@/app/utils';
 
 import Link from 'next/link';
@@ -21,14 +21,15 @@ export default async function ProtectedPage() {
 
   return (
     <div className='flex-1 w-full flex flex-col gap-12 flex-wrap'>
-      <div
-        className='flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-xl items-center justify-center p-4'
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://cdn.usegalileo.ai/sdxl10/431556f2-fc02-4250-9980-f806143969ab.png")',
-          backgroundPosition: 'center 45%'
-        }}
-      >
+      <div className='relative flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-xl items-center justify-center p-4'>
+        <Image
+          src='https://cdn.usegalileo.ai/sdxl10/431556f2-fc02-4250-9980-f806143969ab.png'
+          alt='Background'
+          layout='fill'
+          style={{ backgroundPosition: 'center 45%', objectFit: 'cover' }}
+          priority
+          className='z-[-1]' // Ensures the image is behind the content
+        />
         <div className='flex flex-col gap-2 text-center'>
           <h1 className='text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em]'>
             Welcome to LinkHub

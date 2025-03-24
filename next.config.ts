@@ -8,7 +8,10 @@ const nextConfig: NextConfig = {
     });
 
     return config;
-  }
+  },
+  images: {
+    domains: ['cdn.usegalileo.ai']
+  },
   // Add other Next.js config options here if needed
 };
 

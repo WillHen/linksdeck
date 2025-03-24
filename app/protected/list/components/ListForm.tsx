@@ -69,7 +69,7 @@ export function ListForm({
       {({ values, setFieldValue, errors }) => {
         return (
           <Form>
-            <div className='flex flex-col w-full self-stretch min-w-[31.25rem]'>
+            <div className='flex flex-col w-full self-stretch md:min-w-[31.25rem]'>
               <div className='flex justify-start items-start flex-col gap-3'>
                 <div className='flex flex-row items-center'>
                   <p className='self-stretch text-[#121417] leading-10 text-xl'>
