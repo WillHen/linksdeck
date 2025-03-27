@@ -6,11 +6,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 import { createListAndLinksAction } from './actions';
 
-import {
-  ListForm,
-  SkeletonLoader,
-  SaveAction
-} from '@/app/protected/list/components';
+import { ListForm, SaveAction } from '@/app/protected/list/components';
 
 import type { FormDetails } from '@/app/protected/list/components/ListForm';
 
@@ -18,8 +14,6 @@ export default function AddListPage() {
   const router = useRouter();
   const [, setError] = useState('');
   const hasUser = useRef(false);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -37,24 +31,26 @@ export default function AddListPage() {
     }
   }, []);
 
-  const handleSubmit = async (values: FormDetails) => {
-    try {
-      setIsSubmitting(true);
-      const listId = await createListAndLinksAction(
-        values.title,
-        values.description,
-        values.links
-      );
-      router.push(`/list/view/${listId}`);
-    } catch (error) {
-      setIsSubmitting(false);
-      setError(String(error));
-    }
+  const handleSubmit = (values: FormDetails) => {
+    const createRouterPromise = (listId: string) => {
+      return new Promise<void>((resolve) => {
+        router.push(`/list/view/${listId}`);
+        resolve();
+      });
+    };
+    return new Promise<void>((resolve, reject) => {
+      createListAndLinksAction(values.title, values.description, values.links)
+        .then((listId) => {
+          createRouterPromise(listId).then(() => {
+            resolve();
+          });
+        })
+        .catch((error) => {
+          setError((error as Error).message);
+          reject();
+        });
+    });
   };
-
-  if (isSubmitting) {
-    return <SkeletonLoader />;
-  }
 
   return (
     <div className='flex flex-col gap-5'>

@@ -1,8 +1,6 @@
 export function SkeletonLoader() {
   return (
     <div className='animate-pulse w-[30rem] mx-auto'>
-      <p className='mb-2 h-4 bg-gray-300 rounded w-20'></p>
-
       {/* Skeleton for Link 1 */}
       <div className='mb-4 p-2 border border-gray-200 rounded bg-gray-100'>
         {/* Title Skeleton */}

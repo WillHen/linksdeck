@@ -13,7 +13,7 @@ export const createListAndLinksAction = async (
   title: string,
   description: string,
   links: Link[]
-) => {
+): Promise<string> => {
   const {
     data: { user },
     error: userError

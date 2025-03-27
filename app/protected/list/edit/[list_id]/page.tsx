@@ -7,11 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { fetchListAndLinks, saveListAndLinks } from './actions';
-import {
-  ListForm,
-  SkeletonLoader,
-  SaveAction
-} from '@/app/protected/list/components';
+import { ListForm, SaveAction } from '@/app/protected/list/components';
 
 import type { FormDetails } from '@/app/protected/list/components/ListForm';
 
@@ -26,7 +22,7 @@ interface Link {
 export default function EditListPage() {
   const router = useRouter();
   const { list_id } = useParams();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setisLoading] = useState(true);
   const [, setError] = useState('');
   const [user_id, setUser_id] = useState('');
   const [initialValues, setInitialValues] = useState({
@@ -80,7 +76,7 @@ export default function EditListPage() {
             url: link.url
           }))
         });
-        setLoading(false);
+        setisLoading(false);
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
@@ -94,35 +90,41 @@ export default function EditListPage() {
   }, [list_id]);
 
   const handleSubmit = async (values: FormDetails, linksToDelete: string[]) => {
-    try {
-      await saveListAndLinks(
-        list_id as string,
-        values.title,
-        values.description,
-        values.links,
-        user_id
-      );
+    let linkToDeletePromise = new Promise((resolve) => {
+      resolve(true);
+    });
 
-      // Delete the marked links
-      if (linksToDelete.length > 0) {
-        const { error: deleteError } = await supabase
+    if (linksToDelete.length > 0) {
+      linkToDeletePromise = new Promise((resolve, reject) => {
+        supabase
           .from('links')
           .delete()
-          .in('id', linksToDelete);
-
-        if (deleteError) {
-          throw new Error(deleteError.message);
-        }
-      }
-      router.push(`/list/view/${list_id}`);
-    } catch (err) {
-      alert('Error saving list and links: ' + err);
+          .in('id', linksToDelete)
+          .then(({ error }) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(true);
+            }
+          });
+      });
     }
+    saveListAndLinks(
+      list_id as string,
+      values.title,
+      values.description,
+      values.links,
+      user_id
+    )
+      .then(() => {
+        linkToDeletePromise.then(() => {
+          router.push(`/list/view/${list_id}`);
+        });
+      })
+      .catch((error) => {
+        setError((error as Error).message);
+      });
   };
-
-  if (loading) {
-    return <SkeletonLoader />;
-  }
 
   return (
     <div className='flex flex-col gap-5'>
@@ -146,6 +148,7 @@ export default function EditListPage() {
         initialValues={initialValues}
         handleSubmit={handleSubmit}
         saveAction={SaveAction.Update}
+        isLoading={isLoading}
       />
     </div>
   );

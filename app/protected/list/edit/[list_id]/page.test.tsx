@@ -64,8 +64,10 @@ jest.mock('@/lib/supabaseClient', () => {
 
 jest.mock('./actions', () => ({
   ...jest.requireActual('./actions'),
-  fetchListAndLinks: jest.fn(),
-  saveListAndLinks: jest.fn()
+  fetchListAndLinks: jest.fn(
+    () => new Promise((resolve) => resolve({ listData: {}, linksData: [] }))
+  ),
+  saveListAndLinks: jest.fn(() => new Promise<void>((resolve) => resolve()))
 }));
 
 describe('EditListPage', () => {

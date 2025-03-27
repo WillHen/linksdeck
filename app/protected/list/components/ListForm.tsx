@@ -1,10 +1,11 @@
 import { Field, FieldArray, Form, Formik, ErrorMessage } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
 import * as Yup from 'yup';
-import { LinkDetails } from './LinkDetails';
 import isEqual from 'lodash.isequal';
+
+import { LinkDetails } from './LinkDetails';
+import { SkeletonLoader } from './SkeleonLoader';
 
 interface Link {
   title: string;
@@ -46,24 +47,36 @@ const validationSchema = Yup.object().shape({
 export function ListForm({
   initialValues,
   handleSubmit,
-  saveAction
+  saveAction,
+  isLoading
 }: {
   initialValues: FormDetails;
-  handleSubmit: (values: FormDetails, linksToDelete: string[]) => void;
+  handleSubmit: (values: FormDetails, linksToDelete: string[]) => Promise<void>;
   saveAction: SaveAction;
+  isLoading?: boolean;
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
+
+  if (isSubmitting || isLoading) {
+    return <SkeletonLoader />;
+  }
+
   return (
     <Formik
       validationSchema={validationSchema}
       initialValues={initialValues}
-      va
       validateOnChange={false} // Disable validation on change
       validateOnBlur={false}
       validateOnMount={false}
       enableReinitialize
-      onSubmit={(values) => {
-        handleSubmit(values, linksToDelete);
+      onSubmit={async (values) => {
+        setIsSubmitting(true);
+        try {
+          await handleSubmit(values, linksToDelete);
+        } catch (error: unknown) {
+          console.error('Error saving list:', (error as Error).message);
+        }
       }}
     >
       {({ values, setFieldValue, errors }) => {
