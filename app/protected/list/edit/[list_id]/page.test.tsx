@@ -10,6 +10,8 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn().mockReturnValue({ list_id: 'list_id' })
 }));
 
+const mockUser = { id: 'user1', email: 'user@example.com' };
+
 jest.mock('@/lib/supabaseClient', () => ({
   supabase: {
     from: jest.fn().mockReturnThis(),
@@ -18,7 +20,6 @@ jest.mock('@/lib/supabaseClient', () => ({
     in: jest.fn().mockReturnThis()
   }
 }));
-const mockUser = { id: 'user-id', email: 'user@example.com' };
 const mockListInsert = jest.fn().mockReturnThis();
 const mockListSelect = jest.fn().mockReturnThis();
 const mockLinkDelete = jest.fn().mockReturnThis();
@@ -32,7 +33,9 @@ jest.mock('@/lib/supabaseClient', () => {
   return {
     supabase: {
       auth: {
-        getUser: jest.fn(() => mockUser),
+        getUser: jest.fn(() =>
+          Promise.resolve({ data: { user: mockUser }, error: null })
+        ),
         setSession: jest.fn()
       },
       from: jest.fn().mockImplementation((table) => {

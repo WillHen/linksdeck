@@ -9,8 +9,8 @@ interface Link {
 
 import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
 
-export async function fetchListAndLinks(list_id: string) {
-  const { data: listData, error: listError } = await getListsFromSupabase(supabase)
+export async function fetchListAndLinks(list_id: string, user_id: string) {
+  const { data: listData, error: listError } = await getListsFromSupabase(supabase, user_id)
     .eq('id', list_id)
     .single();
 
@@ -18,7 +18,7 @@ export async function fetchListAndLinks(list_id: string) {
     throw new Error(listError.message);
   }
 
-  const { data: linksData, error: linksError } = await getLinksFromSupabase(supabase)
+  const { data: linksData, error: linksError } = await getLinksFromSupabase(supabase, user_id)
     .eq('list_id', list_id);
 
   if (linksError) {

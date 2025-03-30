@@ -4,15 +4,18 @@ import ViewListPage from './page';
 
 // Mock the underlying functions
 jest.mock('@/app/utils', () => ({
-  getListsFromSupabase: jest.fn(),
-  getLinksFromSupabase: jest.fn()
+  getListsFromSupabaseAnon: jest.fn(),
+  getLinksFromSupabaseAnon: jest.fn()
 }));
 
 jest.mock('@/utils/supabase/server', () => ({
   createClient: jest.fn()
 }));
 
-import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
+import {
+  getListsFromSupabaseAnon,
+  getLinksFromSupabaseAnon
+} from '@/app/utils';
 
 const listData = { title: 'Test Title', description: 'Test Description' };
 const linksData = [
@@ -32,10 +35,10 @@ const linksData = [
 
 describe('ViewListPage', () => {
   beforeAll(() => {
-    (getListsFromSupabase as jest.Mock).mockReturnValue({
+    (getListsFromSupabaseAnon as jest.Mock).mockReturnValue({
       eq: () => ({ single: () => ({ data: listData, error: null }) })
     });
-    (getLinksFromSupabase as jest.Mock).mockReturnValue({
+    (getLinksFromSupabaseAnon as jest.Mock).mockReturnValue({
       eq: () => ({ data: linksData, error: null })
     });
   });

@@ -63,10 +63,14 @@ export default function EditListPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
         const { listData, linksData } = await fetchListAndLinks(
-          list_id as string
+          list_id as string,
+          user?.id as string
         );
-        setUser_id(listData.user_id as string);
+        setUser_id(user?.id as string);
         setInitialValues({
           title: listData.title,
           description: listData.description ?? '',

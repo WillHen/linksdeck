@@ -4,12 +4,14 @@ import Link from 'next/link';
 
 import type { Database } from '@/app/types/Supabase';
 
-import { getListsFromSupabase, getLinksFromSupabase } from '@/app/utils';
+import {
+  getListsFromSupabaseAnon,
+  getLinksFromSupabaseAnon
+} from '@/app/utils';
 
 async function fetchListAndLinks(list_id: string) {
   const supabase = await createClient();
-
-  const { data: listData, error: listError } = await getListsFromSupabase(
+  const { data: listData, error: listError } = await getListsFromSupabaseAnon(
     supabase
   )
     .eq('id', list_id)
@@ -18,7 +20,7 @@ async function fetchListAndLinks(list_id: string) {
     throw new Error(listError.message);
   }
 
-  const { data: linksData, error: linksError } = await getLinksFromSupabase(
+  const { data: linksData, error: linksError } = await getLinksFromSupabaseAnon(
     supabase
   ).eq('list_id', list_id);
 

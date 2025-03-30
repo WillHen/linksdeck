@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
+
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -17,7 +18,7 @@ export default async function ProtectedPage() {
     return redirect('/sign-in');
   }
 
-  const { data: lists } = await getListsFromSupabase(supabase);
+  const { data: lists } = await getListsFromSupabase(supabase, user.id);
 
   return (
     <div className='flex-1 w-full flex flex-col gap-12 flex-wrap'>

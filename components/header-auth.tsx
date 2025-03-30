@@ -1,4 +1,3 @@
-import { signOutAction } from '@/app/actions';
 import { hasEnvVars } from '@/utils/supabase/check-env-vars';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
@@ -50,11 +49,11 @@ export default async function AuthButton() {
   }
   return user ? (
     <div className='flex gap-4 ml-auto'>
-      <form action={signOutAction}>
-        <Button type='submit' variant={'outline'}>
-          Sign out
-        </Button>
-      </form>
+      <Button asChild size='sm' variant={'outline'}>
+        <Link data-testid='home-header-link' href='/protected/settings'>
+          Settings
+        </Link>
+      </Button>
       <Button asChild size='sm' variant={'outline'}>
         <Link data-testid='home-header-link' href='/'>
           Home

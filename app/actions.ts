@@ -1,7 +1,7 @@
 'use server';
 
 import { encodedRedirect } from '@/utils/utils';
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createServiceClient } from '@/utils/supabase/server';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -130,5 +130,59 @@ export const resetPasswordAction = async (formData: FormData) => {
 export const signOutAction = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  return redirect('/sign-in');
+};
+
+export const changeEmailAction = async (formData: FormData) => {
+  const email = formData.get('email');
+
+  // Validate the email value
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    throw new Error('Invalid email address');
+  }
+
+  const supabase = await createClient();
+  await supabase.auth.updateUser({ email: email });
+};
+
+export const deleteUserAction = async () => {
+  const supabase = await createServiceClient();
+
+  // Get the current authenticated user
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error('Failed to fetch the authenticated user');
+  }
+
+  const userId = user?.id;
+
+  // Delete user data from related tables
+  const { error: linksError } = await supabase
+    .from('links')
+    .delete()
+    .eq('user_id', userId);
+
+  if (linksError) {
+    throw new Error(`Failed to delete links: ${linksError.message}`);
+  }
+
+  const { error: listsError } = await supabase
+    .from('lists')
+    .delete()
+    .eq('user_id', userId);
+
+  if (listsError) {
+    throw new Error(`Failed to delete lists: ${listsError.message}`);
+  }
+
+  // Delete the user from Supabase Auth
+  const { error: deleteUserError } = await supabase.auth.admin.deleteUser(userId);
+
+  if (deleteUserError) {
+    throw new Error(`Failed to delete user: ${deleteUserError.message} ${userId}`);
+  }
+
+  // Redirect to the sign-in page after deletion
   return redirect('/sign-in');
 };
