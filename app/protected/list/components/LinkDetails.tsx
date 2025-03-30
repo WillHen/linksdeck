@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Field, ErrorMessage, useFormikContext } from 'formik';
+import { useState } from 'react';
 interface LinkProps {
   title: string;
   url: string;
@@ -25,9 +26,22 @@ export function LinkDetails({
   onChange,
   onDeleteLink
 }: LinkProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const handleDelete = () => {
+    setIsDeleting(true); // Trigger the animation
+    setTimeout(() => {
+      onDeleteLink(linkIndex);
+      setIsDeleting(false); // Remove the link after the animation
+    }, 300); // Match the duration of the animation
+  };
   const { setFieldValue } = useFormikContext();
   return (
-    <div data-testid={`link-${linkIndex}`} className='flex min-w-full'>
+    <div
+      data-testid={`link-${linkIndex}`}
+      className={`flex min-w-full transition-opacity duration-300 ${
+        isDeleting ? 'opacity-0' : 'opacity-100'
+      }`}
+    >
       <div className='min-w-full'>
         <Field
           type='text'
@@ -89,7 +103,7 @@ export function LinkDetails({
         <button
           data-testid='delete-link-button'
           type='button'
-          onClick={() => onDeleteLink(linkIndex)}
+          onClick={() => handleDelete(linkIndex)}
           className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#C70000] h-9 rounded-xl mt-1 mb-1'
         >
           <span className='text-[#FFFFFF] text-sm text-center font-bold'>
