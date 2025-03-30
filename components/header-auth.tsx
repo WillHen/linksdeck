@@ -50,9 +50,7 @@ export default async function AuthButton() {
   return user ? (
     <div className='flex gap-4 ml-auto'>
       <Button asChild size='sm' variant={'outline'}>
-        <Link data-testid='home-header-link' href='/protected/settings'>
-          Settings
-        </Link>
+        <Link href='/protected/settings'>Settings</Link>
       </Button>
       <Button asChild size='sm' variant={'outline'}>
         <Link data-testid='home-header-link' href='/'>
