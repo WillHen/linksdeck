@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    domains: ['cdn.usegalileo.ai']
+    domains: ['cdn.usegalileo.ai'], // Add the hostname here
   },
   // Add other Next.js config options here if needed
 };

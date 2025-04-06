@@ -7,8 +7,68 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
+      cancellation_tokens: {
+        Row: {
+          created_at: string | null
+          expiration: string
+          id: number
+          is_used: boolean | null
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expiration: string
+          id?: number
+          is_used?: boolean | null
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expiration?: string
+          id?: number
+          is_used?: boolean | null
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cancellation_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       links: {
         Row: {
           created_at: string | null
@@ -225,3 +285,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+

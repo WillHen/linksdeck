@@ -148,41 +148,25 @@ export const changeEmailAction = async (formData: FormData) => {
 export const deleteUserAction = async () => {
   const supabase = await createServiceClient();
 
-  // Get the current authenticated user
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const token = await supabase.auth.getSession().then((res) => res.data.session?.access_token);
 
-  if (userError || !user) {
-    throw new Error('Failed to fetch the authenticated user');
+  const headersList = headers();
+  const protocol = (await headersList).get('x-forwarded-proto') || 'http';
+  const host = (await headersList).get('host');
+  const baseUrl = `${protocol}://${host}`;
+
+  try {
+    await fetch(`${baseUrl}/api/start_cancellation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+  } catch (err) {
+    console.error('Error calling delete-user API:', err);
+    console.error('Error:', err);
   }
 
-  const userId = user?.id;
-
-  // Delete user data from related tables
-  const { error: linksError } = await supabase
-    .from('links')
-    .delete()
-    .eq('user_id', userId);
-
-  if (linksError) {
-    throw new Error(`Failed to delete links: ${linksError.message}`);
-  }
-
-  const { error: listsError } = await supabase
-    .from('lists')
-    .delete()
-    .eq('user_id', userId);
-
-  if (listsError) {
-    throw new Error(`Failed to delete lists: ${listsError.message}`);
-  }
-
-  // Delete the user from Supabase Auth
-  const { error: deleteUserError } = await supabase.auth.admin.deleteUser(userId);
-
-  if (deleteUserError) {
-    throw new Error(`Failed to delete user: ${deleteUserError.message} ${userId}`);
-  }
-
-  // Redirect to the sign-in page after deletion
-  return redirect('/sign-in');
 };
