@@ -131,7 +131,7 @@ export default function EditListPage() {
   };
 
   return (
-    <div className='flex flex-col gap-5'>
+    <div className='w-full flex flex-col'>
       <div className='flex justify-start items-start flex-col gap-3'>
         <div
           data-testid='edit-list-header'

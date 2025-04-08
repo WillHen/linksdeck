@@ -45,7 +45,7 @@ export default function RootLayout({
                   {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                 </div>
               </nav>
-              <div className='flex self-stretch flex-1 justify-center items-start flex-row py-5 px-4 sm:py-10 sm:px-20 md:py-20 md:px-40 lg:py-20 lg:px-80 xl:py-20 xl:px-160'>
+              <div className='flex self-stretch flex-1 justify-center items-start flex-row py-5 px-4'>
                 {children}
                 <Toaster position='top-right' reverseOrder={false} />
               </div>

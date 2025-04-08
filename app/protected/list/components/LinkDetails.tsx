@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Field, ErrorMessage, useFormikContext } from 'formik';
 import { useState } from 'react';
+
 interface LinkProps {
   title: string;
   url: string;
@@ -27,6 +28,7 @@ export function LinkDetails({
   onDeleteLink
 }: LinkProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDelete = () => {
     setIsDeleting(true); // Trigger the animation
     setTimeout(() => {
@@ -34,21 +36,30 @@ export function LinkDetails({
       setIsDeleting(false); // Remove the link after the animation
     }, 300); // Match the duration of the animation
   };
+
   const { setFieldValue } = useFormikContext();
+
   return (
     <div
       data-testid={`link-${linkIndex}`}
-      className={`flex min-w-full transition-opacity duration-300 ${
+      className={`flex flex-col gap-4 p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-sm transition-opacity duration-300 ${
         isDeleting ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      <div className='min-w-full'>
+      {/* Link Title */}
+      <div>
+        <label
+          htmlFor={`links[${linkIndex}].title`}
+          className='block text-sm font-medium text-gray-700 mb-1'
+        >
+          Link Title
+        </label>
         <Field
           type='text'
           name={`links[${linkIndex}].title`}
           data-testid={`link-title-${linkIndex}`}
-          placeholder='Link Title'
-          className='self-stretch text-[#121417] font-medium leading-6 p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[40px] w-full mb-2'
+          placeholder='Enter link title'
+          className='w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
           onChange={(e: { target: { value: string } }) => {
             onChange(
               linkIndex,
@@ -62,17 +73,26 @@ export function LinkDetails({
           }}
         />
         <ErrorMessage
-          data-testid={`link-title-${linkIndex}-error`}
           name={`links[${linkIndex}].title`}
           component='div'
           className='text-red-500 text-sm mt-1'
         />
+      </div>
+
+      {/* Link URL */}
+      <div>
+        <label
+          htmlFor={`links[${linkIndex}].url`}
+          className='block text-sm font-medium text-gray-700 mb-1'
+        >
+          Link URL
+        </label>
         <Field
           type='text'
           name={`links[${linkIndex}].url`}
           data-testid={`link-url-${linkIndex}`}
-          placeholder='Link URL'
-          className='self-stretch text-[#121417] font-medium leading-6 p-[15px] bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-[40px] w-full mb-2'
+          placeholder='Enter link URL'
+          className='w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
           onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
             const value = e.target.value;
             if (value && !/^(https?:\/\/)/i.test(value)) {
@@ -96,26 +116,21 @@ export function LinkDetails({
         />
         <ErrorMessage
           name={`links[${linkIndex}].url`}
-          data-testid={`link-url-${linkIndex}-error`}
           component='div'
-          className='text-red-500 text-sm'
+          className='text-red-500 text-sm mt-1'
         />
-        <button
-          data-testid='delete-link-button'
-          type='button'
-          onClick={() => handleDelete(linkIndex)}
-          className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#C70000] h-9 rounded-xl mt-1 mb-1'
-        >
-          <span className='text-[#FFFFFF] text-sm text-center font-bold'>
-            <FontAwesomeIcon
-              data-testid={`delete-link-${linkIndex}-button`}
-              icon={faTrash}
-              className='text-[#121417] text-2xl cursor-pointer'
-              onClick={() => onDeleteLink(linkIndex)}
-            />
-          </span>
-        </button>
       </div>
+
+      {/* Delete Button */}
+      <button
+        data-testid='delete-link-button'
+        type='button'
+        onClick={handleDelete}
+        className='flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-red-500'
+      >
+        <FontAwesomeIcon icon={faTrash} className='text-white' />
+        <span>Delete Link</span>
+      </button>
     </div>
   );
 }
