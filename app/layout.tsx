@@ -2,6 +2,7 @@ import { EnvVarWarning } from '@/components/env-var-warning';
 import HeaderAuth from '@/components/header-auth';
 import { hasEnvVars } from '@/utils/supabase/check-env-vars';
 import { Geist } from 'next/font/google';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
 
@@ -46,6 +47,7 @@ export default function RootLayout({
               </nav>
               <div className='flex self-stretch flex-1 justify-center items-start flex-row py-5 px-4 sm:py-10 sm:px-20 md:py-20 md:px-40 lg:py-20 lg:px-80 xl:py-20 xl:px-160'>
                 {children}
+                <Toaster position='top-right' reverseOrder={false} />
               </div>
             </div>
           </main>

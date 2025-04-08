@@ -1,31 +1,14 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/server';
 import crypto from 'crypto';
 
 
 const generateToken = (length = 32) => {
     return crypto.randomBytes(length).toString('hex');
 };
-export async function POST(req: Request) {
+export async function POST() {
 
-    const authHeader = req.headers.get('Authorization');
-    const usertoken = authHeader?.split(' ')[1]; // 
-
-    if (!usertoken) {
-        return NextResponse.json({ error: 'Unauthorized: Missing token' }, { status: 401 });
-    }
-
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${usertoken}`,
-                },
-            },
-        }
-    );
+    const supabase = await createClient();
 
     // Pass the token to the Supabase client
     const { data: { user }, error } = await supabase.auth.getUser();

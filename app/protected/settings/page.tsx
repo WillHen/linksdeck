@@ -1,48 +1,29 @@
+import ChangeEmailClient from './components/ChangeEmailClient';
+import DeleteAccountClient from './components/DeleteAccountClient';
 import { Button } from '@/components/ui/button';
-import {
-  signOutAction,
-  changeEmailAction,
-  deleteUserAction
-} from '@/app/actions';
+import { signOutAction } from '@/app/actions';
+
 export default async function Settings() {
   return (
-    <>
-      <div className='flex flex-col'>
-        <div className='flex flex-row gap-4'>
-          <div>Sign out</div>
-          <div>
-            <form action={signOutAction}>
-              <Button type='submit' variant={'outline'}>
-                Sign out
-              </Button>
-            </form>
-          </div>
-        </div>
-        <div className='flex flex-row gap-4'>
-          <h1>Change Email</h1>
-          <div>
-            <form action={changeEmailAction}>
-              <input
-                type='email'
-                id='email'
-                name='email' // The name attribute is important for form submission
-                placeholder='Enter your email'
-              />
-              <Button type='submit' variant={'outline'}>
-                Change email
-              </Button>
-            </form>
-          </div>
-        </div>
-        <div>
-          <form action={deleteUserAction}>
-            <div>Delete your account</div>
-            <Button type='submit' variant={'outline'}>
-              Delete Account
+    <div className='container mx-auto p-6'>
+      <h1 className='text-2xl font-bold mb-6'>Settings</h1>
+      <div className='flex flex-col gap-6'>
+        {/* Sign Out Section */}
+        <div className='p-6 border rounded-lg shadow-md bg-white'>
+          <h2 className='text-xl font-semibold mb-4'>Sign Out</h2>
+          <form action={signOutAction}>
+            <Button type='submit' variant='outline'>
+              Sign Out
             </Button>
           </form>
         </div>
+
+        {/* Change Email Section */}
+        <ChangeEmailClient />
+
+        {/* Delete Account Section */}
+        <DeleteAccountClient />
       </div>
-    </>
+    </div>
   );
 }
