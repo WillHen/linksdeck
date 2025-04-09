@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { LinkDetails } from './LinkDetails';
 
@@ -122,11 +122,16 @@ describe('LinkDetails', () => {
     expect(screen.getByDisplayValue('http://example.com')).toBeInTheDocument();
   });
 
-  test('deletes link', () => {
+  test('deletes link', async () => {
     renderWithFormik(<LinkDetails {...defaultProps} />, {
       links: [{ title: 'Test Title', url: 'http://example.com' }]
     });
     fireEvent.click(screen.getByTestId('delete-link-0-button'));
-    expect(mockOnDeleteLink).toHaveBeenCalledWith(0);
+    await waitFor(
+      () => {
+        expect(mockOnDeleteLink).toHaveBeenCalledWith(0);
+      },
+      { timeout: 3000 }
+    );
   });
 });

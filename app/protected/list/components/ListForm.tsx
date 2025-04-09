@@ -34,7 +34,7 @@ const validationSchema = Yup.object().shape({
       title: Yup.string().required('Link title is required'),
       url: Yup.string()
         .matches(
-          /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i,
+          /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i,
           'Invalid URL'
         )
         .required('Link URL is required')
@@ -46,12 +46,16 @@ export function ListForm({
   initialValues,
   handleSubmit,
   saveAction,
-  isLoading
+  title,
+  isLoading,
+  deleteList
 }: {
   initialValues: FormDetails;
   handleSubmit: (values: FormDetails, linksToDelete: string[]) => Promise<void>;
   saveAction: SaveAction;
+  title: string;
   isLoading?: boolean;
+  deleteList?: () => Promise<void>;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
@@ -61,10 +65,28 @@ export function ListForm({
   }
 
   return (
-    <div className='w-full max-w-[90%] lg:max-w-[1200px] mx-auto p-8 bg-white shadow-md rounded-lg'>
-      <h1 className='text-3xl font-bold mb-8 text-gray-800'>
-        {saveAction === SaveAction.Create ? 'Create New List' : 'Update List'}
-      </h1>
+    <div className='w-full lg:max-w-[1200px] mx-auto p-8 bg-white shadow-md rounded-lg'>
+      <div className='flex justify-between items-center mb-8'>
+        <h1
+          className='text-3xl font-bold mb-8 text-gray-800'
+          data-testid={
+            (saveAction === SaveAction.Create ? 'new-' : 'edit-') +
+            'list-header'
+          }
+        >
+          {title}
+        </h1>
+        {saveAction === SaveAction.Update && deleteList && (
+          <button
+            type='button'
+            onClick={deleteList}
+            className='text-red-600 hover:text-red-800 transition'
+            data-testid='delete-list-button'
+          >
+            Delete List
+          </button>
+        )}
+      </div>
       <Formik
         validationSchema={validationSchema}
         initialValues={initialValues}
@@ -97,6 +119,7 @@ export function ListForm({
                   name='title'
                   type='text'
                   placeholder='Enter list title'
+                  data-testid='list-title-input'
                   className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
                 <ErrorMessage
@@ -119,6 +142,7 @@ export function ListForm({
                   name='description'
                   type='text'
                   placeholder='Enter list description'
+                  data-testid='list-description-input'
                   className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>

@@ -74,6 +74,7 @@ export function LinkDetails({
         />
         <ErrorMessage
           name={`links[${linkIndex}].title`}
+          data-testid={`link-title-${linkIndex}-error`}
           component='div'
           className='text-red-500 text-sm mt-1'
         />
@@ -116,6 +117,7 @@ export function LinkDetails({
         />
         <ErrorMessage
           name={`links[${linkIndex}].url`}
+          data-testid={`link-url-${linkIndex}-error`}
           component='div'
           className='text-red-500 text-sm mt-1'
         />
@@ -123,7 +125,7 @@ export function LinkDetails({
 
       {/* Delete Button */}
       <button
-        data-testid='delete-link-button'
+        data-testid={`delete-link-${linkIndex}-button`}
         type='button'
         onClick={handleDelete}
         className='flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-red-500'

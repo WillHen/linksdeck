@@ -54,19 +54,10 @@ export default function AddListPage() {
 
   return (
     <div className='lg:w-1/2 flex flex-col'>
-      <div className='flex justify-start items-start flex-col gap-3'>
-        <div
-          data-testid='create-list-header'
-          className='flex flex-row items-center'
-        >
-          <p className='self-stretch text-[#121417] font-bold leading-10 text-3xl'>
-            New list
-          </p>
-        </div>
-      </div>
       <ListForm
         handleSubmit={handleSubmit}
         initialValues={{ title: '', description: '', links: [] }}
+        title={'Create List'}
         saveAction={SaveAction.Create}
       />
     </div>
