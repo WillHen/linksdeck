@@ -37,7 +37,7 @@ export function LinkDetails({
     }, 300); // Match the duration of the animation
   };
 
-  const { setFieldValue } = useFormikContext();
+  const { setFieldValue, setFieldTouched } = useFormikContext();
 
   return (
     <div
@@ -100,6 +100,7 @@ export function LinkDetails({
               // Add http:// if missing
               setFieldValue(`links[${linkIndex}].url`, `http://${value}`);
             }
+            setFieldTouched(`links[${linkIndex}].url`, true);
           }}
           onChange={(e: { target: { value: string } }) => {
             onChange(
@@ -115,6 +116,13 @@ export function LinkDetails({
             );
           }}
         />
+        {/* {errors.links &&
+          errors.links[linkIndex] &&
+          errors.links[linkIndex].url && (
+            <div className='text-red-500 text-sm mt-1'>
+              {errors.links[linkIndex].url}
+            </div>
+          )} */}
         <ErrorMessage
           name={`links[${linkIndex}].url`}
           data-testid={`link-url-${linkIndex}-error`}

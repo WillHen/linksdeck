@@ -91,7 +91,7 @@ export function ListForm({
         validationSchema={validationSchema}
         initialValues={initialValues}
         validateOnChange={false}
-        validateOnBlur={false}
+        validateOnBlur={true}
         validateOnMount={false}
         enableReinitialize
         onSubmit={async (values) => {
@@ -103,7 +103,7 @@ export function ListForm({
           }
         }}
       >
-        {({ values, setFieldValue, errors }) => {
+        {({ values, setFieldValue }) => {
           return (
             <Form>
               {/* List Title */}
@@ -210,15 +210,11 @@ export function ListForm({
                 data-testid={`${saveAction}-list-button`}
                 type='submit'
                 className={`w-full py-4 px-4 text-white font-bold rounded-lg ${
-                  isEqual(initialValues, values) ||
-                  Object.keys(errors).length > 0
+                  isEqual(initialValues, values)
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-blue-500 hover:bg-blue-600 transition'
                 }`}
-                disabled={
-                  isEqual(initialValues, values) ||
-                  Object.keys(errors).length > 0
-                }
+                disabled={isEqual(initialValues, values)}
               >
                 {saveAction === SaveAction.Create ? 'Create' : 'Update'} List
               </button>
