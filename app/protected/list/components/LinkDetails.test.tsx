@@ -6,12 +6,15 @@ import { LinkDetails } from './LinkDetails';
 const mockOnChange = jest.fn();
 const mockOnDeleteLink = jest.fn();
 
-const mockSetFieldValue = jest.fn(); // Mock setFieldValue from Formik
+const mockSetFieldValue = jest.fn();
+
+const mockSetFieldTouched = jest.fn();
 
 jest.mock('formik', () => ({
   ...jest.requireActual('formik'),
   useFormikContext: () => ({
-    setFieldValue: mockSetFieldValue // Mock setFieldValue
+    setFieldValue: mockSetFieldValue,
+    setFieldTouched: mockSetFieldTouched
   })
 }));
 
