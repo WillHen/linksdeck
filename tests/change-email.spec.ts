@@ -1,8 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.configure({ mode: 'serial' });
-
-test.use({ storageState: 'playwright/.auth/user.json' });
 
 test.describe('Change Email', () => {
     test.beforeEach(async ({ page }) => {
