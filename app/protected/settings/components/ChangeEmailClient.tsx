@@ -6,13 +6,27 @@ import { Button } from '@/components/ui/button';
 
 export default function ChangeEmailClient() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleEmailChange = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
+    // Reset states
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log('Email validation failed');
+      setError('Invalid email address');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/change-email', {
@@ -24,16 +38,19 @@ export default function ChangeEmailClient() {
       });
 
       if (response.ok) {
+        setSuccess('Email updated successfully');
         toast.success(
           'Email updated successfully! Please check your inbox to confirm.',
           { duration: 6000, className: 'toast-success' }
         );
       } else {
-        const error = await response.json();
-        toast.error(error.message || 'Failed to update email.');
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to update email');
+        toast.error(errorData.error || 'Failed to update email.');
       }
     } catch (err) {
       console.error('Error changing email:', err);
+      setError('An unexpected error occurred');
       toast.error('An unexpected error occurred.', {
         duration: 6000,
         className: 'toast-error'
@@ -46,16 +63,43 @@ export default function ChangeEmailClient() {
   return (
     <div className='p-6 border rounded-lg shadow-md bg-white'>
       <h2 className='text-xl font-semibold mb-4'>Change Email</h2>
-      <form onSubmit={handleEmailChange} className='flex flex-col gap-4'>
+      <form
+        onSubmit={handleEmailChange}
+        className='flex flex-col gap-4'
+        data-testid='change-email-form'
+      >
         <input
-          type='email'
           id='email'
           name='email'
-          placeholder='Enter your email'
+          placeholder='Enter your new email'
           className='p-2 border rounded-md w-full'
           required
+          data-testid='new-email-input'
         />
-        <Button type='submit' variant='outline' disabled={loading}>
+        {error && (
+          <div
+            className='text-red-500 mt-2'
+            data-testid='email-error'
+            role='alert'
+          >
+            {error}
+          </div>
+        )}
+        {success && (
+          <div
+            className='text-green-500 mt-2'
+            data-testid='email-success'
+            role='alert'
+          >
+            {success}
+          </div>
+        )}
+        <Button
+          type='submit'
+          variant='outline'
+          disabled={loading}
+          data-testid='change-email-submit'
+        >
           {loading ? 'Changing...' : 'Change Email'}
         </Button>
       </form>
