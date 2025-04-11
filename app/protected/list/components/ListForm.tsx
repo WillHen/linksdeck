@@ -33,12 +33,10 @@ const validationSchema = Yup.object().shape({
     Yup.object().shape({
       title: Yup.string().required('Link title is required'),
       url: Yup.string()
-        /* eslint-disable no-useless-escape */
         .matches(
-          /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i,
+          /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i,
           'Invalid URL'
         )
-        /* eslint-enable no-useless-escape */
         .required('Link URL is required')
     })
   )
@@ -48,12 +46,16 @@ export function ListForm({
   initialValues,
   handleSubmit,
   saveAction,
-  isLoading
+  title,
+  isLoading,
+  deleteList
 }: {
   initialValues: FormDetails;
   handleSubmit: (values: FormDetails, linksToDelete: string[]) => Promise<void>;
   saveAction: SaveAction;
+  title: string;
   isLoading?: boolean;
+  deleteList?: () => Promise<void>;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [linksToDelete, setLinksToDelete] = useState<string[]>([]);
@@ -63,137 +65,163 @@ export function ListForm({
   }
 
   return (
-    <Formik
-      validationSchema={validationSchema}
-      initialValues={initialValues}
-      validateOnChange={false} // Disable validation on change
-      validateOnBlur={false}
-      validateOnMount={false}
-      enableReinitialize
-      onSubmit={async (values) => {
-        setIsSubmitting(true);
-        try {
-          await handleSubmit(values, linksToDelete);
-        } catch (error: unknown) {
-          console.error('Error saving list:', (error as Error).message);
-        }
-      }}
-    >
-      {({ values, setFieldValue, errors }) => {
-        return (
-          <Form>
-            <div className='flex flex-col w-full self-stretch md:min-w-[31.25rem]'>
-              <div className='flex justify-start items-start flex-col gap-3'>
-                <div className='flex flex-row items-center'>
-                  <p className='self-stretch text-[#121417] leading-10 text-xl'>
-                    List title
-                  </p>
-                </div>
+    <div className='w-full lg:max-w-[1200px] mx-auto p-8 bg-white shadow-md rounded-lg'>
+      <div className='flex justify-between items-center mb-8'>
+        <h1
+          className='text-3xl font-bold mb-8 text-gray-800'
+          data-testid={
+            (saveAction === SaveAction.Create ? 'new-' : 'edit-') +
+            'list-header'
+          }
+        >
+          {title}
+        </h1>
+        {saveAction === SaveAction.Update && deleteList && (
+          <button
+            type='button'
+            onClick={deleteList}
+            className='text-red-600 hover:text-red-800 transition'
+            data-testid='delete-list-button'
+          >
+            Delete List
+          </button>
+        )}
+      </div>
+      <Formik
+        validationSchema={validationSchema}
+        initialValues={initialValues}
+        validateOnChange={false}
+        validateOnBlur={true}
+        validateOnMount={false}
+        enableReinitialize
+        onSubmit={async (values) => {
+          setIsSubmitting(true);
+          try {
+            await handleSubmit(values, linksToDelete);
+          } catch (error: unknown) {
+            console.error('Error saving list:', (error as Error).message);
+          }
+        }}
+      >
+        {({ values, setFieldValue }) => {
+          return (
+            <Form>
+              {/* List Title */}
+              <div className='mb-8'>
+                <label
+                  htmlFor='title'
+                  className='block text-lg font-medium text-gray-700 mb-2'
+                >
+                  List Title
+                </label>
+                <Field
+                  id='title'
+                  name='title'
+                  type='text'
+                  placeholder='Enter list title'
+                  data-testid='list-title-input'
+                  className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                />
+                <ErrorMessage
+                  name='title'
+                  component='div'
+                  className='text-red-500 text-sm mt-1'
+                />
               </div>
-              <Field
-                data-testid='list-title-input'
-                type='text'
-                name='title'
-                placeholder='List Description'
-                className='self-stretch text-[#121417] font-medium leading-6 bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl h-10 w-full mb-2'
-              />
-              <ErrorMessage
-                name='title'
-                component='div'
-                className='text-red-500 text-sm mt-1'
-              />
-              <div className='flex justify-start items-start flex-col gap-3'>
-                <div className='flex flex-row items-center'>
-                  <p className='self-stretch text-[#121417] leading-10 text-xl'>
-                    List Description
-                  </p>
-                </div>
+
+              {/* List Description */}
+              <div className='mb-8'>
+                <label
+                  htmlFor='description'
+                  className='block text-lg font-medium text-gray-700 mb-2'
+                >
+                  List Description
+                </label>
+                <Field
+                  id='description'
+                  name='description'
+                  type='text'
+                  placeholder='Enter list description'
+                  data-testid='list-description-input'
+                  className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                />
               </div>
-              <Field
-                type='text'
-                data-testid='list-description-input'
-                name='description'
-                placeholder='List description'
-                className='self-stretch text-[#121417] font-medium leading-6 bg-[#FFFFFF] border-solid border-[#DBE0E5] border rounded-xl w-full mb-2 h-10'
-              />
-            </div>
-            <div className='flex flex-col'>
-              <div className='flex justify-start items-start flex-col gap-3'>
-                <div className='flex flex-row items-center'>
-                  <p className='self-stretch text-[#121417] leading-10 text-xl'>
-                    Links
-                  </p>
-                </div>
-              </div>
-              <FieldArray name='links' validateOnChange={false}>
-                {({ push, remove }) => (
-                  <div>
-                    {values.links.map((link, index) => (
-                      <LinkDetails
-                        key={index}
-                        linkIndex={index}
-                        title={link.title}
-                        url={link.url}
-                        id={link.id}
-                        new_id={link.new_id}
-                        onChange={(index, value, id, new_id) => {
-                          if (id) {
-                            setFieldValue(`links[${index}]`, {
-                              id,
-                              ...value
-                            });
-                          } else if (new_id) {
-                            setFieldValue(`links[${index}]`, {
-                              new_id,
-                              ...value
-                            });
-                          } else {
-                            setFieldValue(`links[${index}]`, {
-                              new_id: uuidv4(),
-                              ...value
-                            });
-                          }
+
+              {/* Links Section */}
+              <div className='mb-8'>
+                <h2 className='text-xl font-medium text-gray-700 mb-4'>
+                  Links
+                </h2>
+                <FieldArray name='links' validateOnChange={false}>
+                  {({ push, remove }) => (
+                    <div>
+                      {values.links.map((link, index) => (
+                        <LinkDetails
+                          key={index}
+                          linkIndex={index}
+                          title={link.title}
+                          url={link.url}
+                          id={link.id}
+                          new_id={link.new_id}
+                          onChange={(index, value, id, new_id) => {
+                            if (id) {
+                              setFieldValue(`links[${index}]`, {
+                                id,
+                                ...value
+                              });
+                            } else if (new_id) {
+                              setFieldValue(`links[${index}]`, {
+                                new_id,
+                                ...value
+                              });
+                            } else {
+                              setFieldValue(`links[${index}]`, {
+                                new_id: uuidv4(),
+                                ...value
+                              });
+                            }
+                          }}
+                          onDeleteLink={(index) => {
+                            remove(index);
+                            if (link.id) {
+                              const id = link.id as string;
+                              setLinksToDelete((prev) => [...prev, id]);
+                            }
+                          }}
+                        />
+                      ))}
+                      <button
+                        type='button'
+                        data-testid='add-link-button'
+                        className='w-full py-3 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition mt-4'
+                        onClick={() => {
+                          push({ title: '', url: '', new_id: uuidv4() });
                         }}
-                        onDeleteLink={(index) => {
-                          remove(index);
-                          if (link.id) {
-                            const id = link.id as string;
-                            setLinksToDelete((prev) => [...prev, id]);
-                          }
-                        }}
-                      />
-                    ))}
-                    <button
-                      type='button'
-                      data-testid='add-link-button'
-                      className='flex flex-1 w-full justify-center items-center flex-row px-4 h-9 rounded-xl bg-[#F0F2F5] mb-3 mt-2'
-                      onClick={() => {
-                        push({ title: '', url: '', new_id: uuidv4() });
-                      }}
-                    >
-                      <span className='text-sm text-center font-bold'>
+                      >
                         Add Link
-                      </span>
-                    </button>
-                  </div>
-                )}
-              </FieldArray>
-            </div>
-            <button
-              data-testid={`${saveAction}-list-button`}
-              type='submit'
-              className='flex flex-1 w-full justify-center items-center flex-row px-4 bg-[#1A80E5] h-9 rounded-xl'
-              disabled={
-                isEqual(initialValues, values) || Object.keys(errors).length > 0
-              }
-            >
-              <span className='text-[#FFFFFF] text-sm text-center font-bold'>
+                      </button>
+                    </div>
+                  )}
+                </FieldArray>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                data-testid={`${saveAction}-list-button`}
+                type='submit'
+                className={`w-full py-4 px-4 text-white font-bold rounded-lg ${
+                  isEqual(initialValues, values)
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-500 hover:bg-blue-600 transition'
+                }`}
+                disabled={isEqual(initialValues, values)}
+              >
                 {saveAction === SaveAction.Create ? 'Create' : 'Update'} List
-              </span>
-            </button>
-          </Form>
-        );
-      }}
-    </Formik>
+              </button>
+            </Form>
+          );
+        }}
+      </Formik>
+    </div>
   );
 }

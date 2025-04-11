@@ -21,7 +21,7 @@ export default async function ProtectedPage() {
   const { data: lists } = await getListsFromSupabase(supabase, user.id);
 
   return (
-    <div className='flex-1 w-full flex flex-col gap-12 flex-wrap'>
+    <div className='flex-1 w-full flex flex-col gap-12 flex-wrap sm:py-10 sm:px-20'>
       <div className='relative flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-xl items-center justify-center p-4'>
         <Image
           src='https://cdn.usegalileo.ai/sdxl10/431556f2-fc02-4250-9980-f806143969ab.png'

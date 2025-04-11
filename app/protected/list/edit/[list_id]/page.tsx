@@ -3,8 +3,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useParams } from 'next/navigation';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { fetchListAndLinks, saveListAndLinks } from './actions';
 import { ListForm, SaveAction } from '@/app/protected/list/components';
@@ -131,28 +129,14 @@ export default function EditListPage() {
   };
 
   return (
-    <div className='flex flex-col gap-5'>
-      <div className='flex justify-start items-start flex-col gap-3'>
-        <div
-          data-testid='edit-list-header'
-          className='flex flex-row items-center'
-        >
-          <p className='self-stretch text-[#121417] font-bold leading-10 text-3xl'>
-            Edit list
-          </p>
-          <FontAwesomeIcon
-            data-testid='delete-list-button'
-            icon={faTrash}
-            className='text-[#121417] ml-2 cursor-pointer'
-            onClick={() => handleDeleteList(list_id as string)}
-          />
-        </div>
-      </div>
+    <div className='w-full flex flex-col'>
       <ListForm
         initialValues={initialValues}
         handleSubmit={handleSubmit}
         saveAction={SaveAction.Update}
+        title={'Update List'}
         isLoading={isLoading}
+        deleteList={() => handleDeleteList(list_id as string)}
       />
     </div>
   );

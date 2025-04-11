@@ -1,17 +1,20 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { LinkDetails } from './LinkDetails';
 
 const mockOnChange = jest.fn();
 const mockOnDeleteLink = jest.fn();
 
-const mockSetFieldValue = jest.fn(); // Mock setFieldValue from Formik
+const mockSetFieldValue = jest.fn();
+
+const mockSetFieldTouched = jest.fn();
 
 jest.mock('formik', () => ({
   ...jest.requireActual('formik'),
   useFormikContext: () => ({
-    setFieldValue: mockSetFieldValue // Mock setFieldValue
+    setFieldValue: mockSetFieldValue,
+    setFieldTouched: mockSetFieldTouched
   })
 }));
 
@@ -122,11 +125,16 @@ describe('LinkDetails', () => {
     expect(screen.getByDisplayValue('http://example.com')).toBeInTheDocument();
   });
 
-  test('deletes link', () => {
+  test('deletes link', async () => {
     renderWithFormik(<LinkDetails {...defaultProps} />, {
       links: [{ title: 'Test Title', url: 'http://example.com' }]
     });
     fireEvent.click(screen.getByTestId('delete-link-0-button'));
-    expect(mockOnDeleteLink).toHaveBeenCalledWith(0);
+    await waitFor(
+      () => {
+        expect(mockOnDeleteLink).toHaveBeenCalledWith(0);
+      },
+      { timeout: 3000 }
+    );
   });
 });
