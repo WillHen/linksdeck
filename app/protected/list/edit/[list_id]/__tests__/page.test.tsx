@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import EditListPage from './page';
+import Page from '../page';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
-import { fetchListAndLinks, saveListAndLinks } from './actions';
+import { fetchListAndLinks, saveListAndLinks } from '../actions';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -65,8 +65,8 @@ jest.mock('@/lib/supabaseClient', () => {
   };
 });
 
-jest.mock('./actions', () => ({
-  ...jest.requireActual('./actions'),
+jest.mock('../actions', () => ({
+  ...jest.requireActual('../actions'),
   fetchListAndLinks: jest.fn(
     () => new Promise((resolve) => resolve({ listData: {}, linksData: [] }))
   ),
@@ -101,7 +101,7 @@ describe('EditListPage', () => {
   });
 
   test('renders EditListPage correctly', async () => {
-    render(<EditListPage />);
+    render(<Page />);
 
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
@@ -113,7 +113,7 @@ describe('EditListPage', () => {
   });
 
   test('handles form submission', async () => {
-    render(<EditListPage />);
+    render(<Page />);
 
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
@@ -147,7 +147,7 @@ describe('EditListPage', () => {
   });
 
   test('handles link deletion', async () => {
-    render(<EditListPage />);
+    render(<Page />);
 
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
@@ -166,7 +166,7 @@ describe('EditListPage', () => {
   });
 
   test('handles list deletion', async () => {
-    render(<EditListPage />);
+    render(<Page />);
 
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();

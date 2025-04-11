@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
-import ViewListPage from './page';
+import Page from '../page';
 
 // Mock the underlying functions
 jest.mock('@/app/utils', () => ({
@@ -48,7 +48,7 @@ describe('ViewListPage', () => {
   });
 
   it('renders the list details and links', async () => {
-    const Result = await ViewListPage({ params: { list_id: '1' } });
+    const Result = await Page({ params: { list_id: '1' } });
     render(Result);
 
     // Wait for the list title to be rendered

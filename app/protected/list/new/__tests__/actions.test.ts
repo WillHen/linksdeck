@@ -1,4 +1,4 @@
-import { createListAndLinksAction } from './actions';
+import { createListAndLinksAction } from '../actions';
 import { supabase } from '@/lib/supabaseClient';
 
 const mockUser = { id: 'user-id', email: 'user@example.com' };
