@@ -32,12 +32,15 @@ test.describe('Change Email', () => {
         await emailInput.fill('invalid-email');
         await submitButton.click();
 
-        // Wait for the form submission to complete
-        await page.waitForTimeout(1000);
+        // Wait for the form submission to complete and error state to be set
+        await page.waitForFunction(() => {
+            const errorElement = document.querySelector('[data-testid="email-error"]');
+            return errorElement && errorElement.textContent === 'Invalid email address';
+        }, { timeout: 10000 });
 
         // Check for error message
         const errorMessage = await page.locator('[data-testid="email-error"]');
-        await expect(errorMessage).toBeVisible({ timeout: 10000 });
+        await expect(errorMessage).toBeVisible();
         await expect(errorMessage).toContainText('Invalid email address');
     });
 
@@ -50,10 +53,21 @@ test.describe('Change Email', () => {
         await emailInput.fill(newEmail);
         await submitButton.click();
 
+        // Wait for the form submission to complete and success state to be set
+        await page.waitForFunction(() => {
+            const successElement = document.querySelector('[data-testid="email-success"]');
+            return successElement && successElement.textContent === 'Email updated successfully';
+        }, { timeout: 10000 });
+
         // Check for success message
         const successMessage = await page.locator('[data-testid="email-success"]');
         await expect(successMessage).toBeVisible();
         await expect(successMessage).toContainText('Email updated successfully');
+
+        // Also check for the toast notification
+        const toast = await page.locator('.toast-success');
+        await expect(toast).toBeVisible();
+        await expect(toast).toContainText('Email updated successfully! Please check your inbox to confirm.');
     });
 
     test('should handle server errors', async ({ page }) => {

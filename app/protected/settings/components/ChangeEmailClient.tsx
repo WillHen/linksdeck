@@ -38,7 +38,9 @@ export default function ChangeEmailClient() {
       });
 
       if (response.ok) {
+        // Set success state synchronously
         setSuccess('Email updated successfully');
+        // Show toast after state is set
         toast.success(
           'Email updated successfully! Please check your inbox to confirm.',
           { duration: 6000, className: 'toast-success' }
@@ -76,24 +78,28 @@ export default function ChangeEmailClient() {
           required
           data-testid='new-email-input'
         />
-        {error && (
-          <div
-            className='text-red-500 mt-2'
-            data-testid='email-error'
-            role='alert'
-          >
-            {error}
-          </div>
-        )}
-        {success && (
-          <div
-            className='text-green-500 mt-2'
-            data-testid='email-success'
-            role='alert'
-          >
-            {success}
-          </div>
-        )}
+        <div className='min-h-[24px]' data-testid='message-container'>
+          {error && (
+            <div
+              className='text-red-500 mt-2'
+              data-testid='email-error'
+              role='alert'
+              aria-live='assertive'
+            >
+              {error}
+            </div>
+          )}
+          {success && (
+            <div
+              className='text-green-500 mt-2'
+              data-testid='email-success'
+              role='status'
+              aria-live='polite'
+            >
+              {success}
+            </div>
+          )}
+        </div>
         <Button
           type='submit'
           variant='outline'
