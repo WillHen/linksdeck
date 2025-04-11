@@ -1,9 +1,11 @@
+'use client';
+
 import ChangeEmailClient from './components/ChangeEmailClient';
 import DeleteAccountClient from './components/DeleteAccountClient';
 import { Button } from '@/components/ui/button';
 import { signOutAction } from '@/app/actions';
 
-export default async function Settings() {
+export default function Settings() {
   return (
     <div className='container mx-auto p-6'>
       <h1 className='text-2xl font-bold mb-6'>Settings</h1>
