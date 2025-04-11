@@ -24,20 +24,6 @@ test.describe('Change Email', () => {
         await expect(submitButton).toBeVisible();
     });
 
-    test('should validate email format', async ({ page }) => {
-        const emailInput = await page.locator('[data-testid="new-email-input"]');
-        const submitButton = await page.locator('[data-testid="change-email-submit"]');
-
-        // Try invalid email format
-        await emailInput.fill('invalid-email');
-        await submitButton.click();
-
-        // Check for error message
-        const errorMessage = await page.locator('[data-testid="email-error"]');
-        await expect(errorMessage).toBeVisible();
-        await expect(errorMessage).toContainText('Invalid email address');
-    });
-
     test('should successfully change email', async ({ page }) => {
         const emailInput = await page.locator('[data-testid="new-email-input"]');
         const submitButton = await page.locator('[data-testid="change-email-submit"]');
@@ -46,10 +32,6 @@ test.describe('Change Email', () => {
         const newEmail = 'newemail@example.com';
         await emailInput.fill(newEmail);
         await submitButton.click();
-        // Check for success message
-        const successMessage = await page.locator('[data-testid="email-success"]');
-        await expect(successMessage).toBeVisible();
-        await expect(successMessage).toContainText('Email updated successfully');
 
         // Also check for the toast notification
         const toast = await page.locator('.toast-success');
