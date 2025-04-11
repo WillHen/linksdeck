@@ -8,7 +8,6 @@ test.describe('Change Email', () => {
     });
 
     test('should show email change form', async ({ page }) => {
-        await page.screenshot({ path: 'screenshot.png' });
         // Check if the email change form is visible
         const emailForm = await page.locator('[data-testid="change-email-form"]');
         await expect(emailForm).toBeVisible();
@@ -22,7 +21,8 @@ test.describe('Change Email', () => {
         await expect(submitButton).toBeVisible();
     });
 
-    test('should successfully change email', async ({ page }) => {
+    test('should successfully change email', async ({ page }, testInfo) => {
+        await page.screenshot({ path: 'screenshot.png' });
         const emailInput = await page.locator('[data-testid="new-email-input"]');
         const submitButton = await page.locator('[data-testid="change-email-submit"]');
 
@@ -30,7 +30,11 @@ test.describe('Change Email', () => {
         const newEmail = 'newemail@example.com';
         await emailInput.fill(newEmail);
         await submitButton.click();
-
+        const growlScreenshot = await page.screenshot();
+        testInfo.attach('Customers Page', {
+            body: growlScreenshot,
+            contentType: 'image/png',
+        });
         // Also check for the toast notification
         const toast = await page.locator('.toast-success');
         await expect(toast).toBeVisible();
