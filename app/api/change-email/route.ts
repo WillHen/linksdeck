@@ -21,6 +21,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: 'Email updated successfully' });
     } catch (err) {
         console.error('Unexpected error:', err);
-        return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+        return NextResponse.json(err, { status: 500 });
     }
 }
