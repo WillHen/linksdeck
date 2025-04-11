@@ -38,9 +38,7 @@ export default function ChangeEmailClient() {
       });
 
       if (response.ok) {
-        // Set success state synchronously
         setSuccess('Email updated successfully');
-        // Show toast after state is set
         toast.success(
           'Email updated successfully! Please check your inbox to confirm.',
           { duration: 6000, className: 'toast-success' }
