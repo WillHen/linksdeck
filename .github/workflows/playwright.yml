@@ -30,7 +30,8 @@ jobs:
           sb_status=$(supabase status)
           api_url=$(echo "$sb_status" | grep -o 'API URL:.*' | awk '{print $3}')
           anon_key=$(echo "$sb_status" | grep -o 'anon key: .*' | awk '{print $3}')
-          env_content="NEXT_PUBLIC_SUPABASE_URL=\"$api_url\"\nNEXT_PUBLIC_SUPABASE_ANON_KEY=\"$anon_key\"\n"
+          service_role_key=$(echo "$sb_status" | grep -o 'service_role key: .*' | awk '{print $3}')
+          env_content="NEXT_PUBLIC_SUPABASE_URL=\"$api_url\"\nNEXT_PUBLIC_SUPABASE_ANON_KEY=\"$anon_key\"\nSUPABASE_SERVICE_ROLE_KEY=\"$service_role_key\"\n"
           echo -e "$env_content" > .env.test
 
       - name: Apply migrations
