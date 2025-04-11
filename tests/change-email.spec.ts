@@ -8,6 +8,7 @@ test.describe('Change Email', () => {
     });
 
     test('should show email change form', async ({ page }) => {
+        await page.screenshot({ path: 'screenshot.png' });
         // Check if the email change form is visible
         const emailForm = await page.locator('[data-testid="change-email-form"]');
         await expect(emailForm).toBeVisible();
