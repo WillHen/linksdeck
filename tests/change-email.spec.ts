@@ -21,8 +21,7 @@ test.describe('Change Email', () => {
         await expect(submitButton).toBeVisible();
     });
 
-    test('should successfully change email', async ({ page }, testInfo) => {
-        await page.screenshot({ path: 'screenshot.png' });
+    test('should successfully change email', async ({ page }) => {
         const emailInput = await page.locator('[data-testid="new-email-input"]');
         const submitButton = await page.locator('[data-testid="change-email-submit"]');
 
@@ -30,11 +29,6 @@ test.describe('Change Email', () => {
         const newEmail = 'newemail@example.com';
         await emailInput.fill(newEmail);
         await submitButton.click();
-        const growlScreenshot = await page.screenshot();
-        testInfo.attach('Customers Page', {
-            body: growlScreenshot,
-            contentType: 'image/png',
-        });
         // Also check for the toast notification
         const toast = await page.locator('.toast-success');
         await expect(toast).toBeVisible();
@@ -61,5 +55,34 @@ test.describe('Change Email', () => {
         const errorMessage = await page.locator('[data-testid="email-error"]');
         await expect(errorMessage).toBeVisible();
         await expect(errorMessage).toContainText('Failed to update email');
+    });
+
+    test('should show warning for invalid email format', async ({ page }) => {
+        const emailInput = await page.locator('[data-testid="new-email-input"]');
+        const submitButton = await page.locator('[data-testid="change-email-submit"]');
+
+        // Try different invalid email formats
+        const invalidEmails = [
+            'invalid-email',          // No @ symbol
+            'invalid@',               // No domain
+            '@example.com',           // No username
+            'invalid@example',        // No TLD
+            'invalid@.com',           // No domain name
+            'invalid@example.com.',   // Trailing dot
+        ];
+
+        for (const email of invalidEmails) {
+            // Fill in invalid email
+            await emailInput.fill(email);
+            await submitButton.click();
+
+            // Wait for the error message to appear
+            const errorMessage = page.locator('[data-testid="email-error"]');
+            await expect(errorMessage).toBeVisible({ timeout: 5000 });
+            await expect(errorMessage).toContainText('Invalid email address');
+
+            // Clear the input for next test
+            await emailInput.clear();
+        }
     });
 }); 
