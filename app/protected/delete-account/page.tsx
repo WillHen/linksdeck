@@ -11,7 +11,9 @@ interface DeleteAccountPageProps {
 export default async function DeleteAccountPage({
   searchParams
 }: DeleteAccountPageProps) {
-  const token = searchParams?.token;
+  const params = await searchParams;
+
+  const { token } = params;
 
   if (!token) {
     // Redirect to an error page or home if the token is missing
@@ -30,7 +32,7 @@ export default async function DeleteAccountPage({
   const baseUrl = `${protocol}://${host}`;
 
   try {
-    await fetch(`${baseUrl}/api/confirm_deletion`, {
+    const result = await fetch(`${baseUrl}/api/confirm_deletion`, {
       method: 'POST',
       body: JSON.stringify({
         token
@@ -40,6 +42,10 @@ export default async function DeleteAccountPage({
         Authorization: `Bearer ${access_token}`
       }
     });
+
+    if (result.status > 200) {
+      return <DeleteAccountClient success={false} />;
+    }
 
     return <DeleteAccountClient success />;
   } catch (err) {
