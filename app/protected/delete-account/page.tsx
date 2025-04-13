@@ -46,15 +46,4 @@ export default async function DeleteAccountPage({
     console.error('Error calling delete-user API:', err);
     return <DeleteAccountClient error='An unexpected error occurred' />;
   }
-
-  // Query the cancellation_tokens table to validate the token
-
-  // Check if the token is expired
-
-  // If the token is valid, render the delete account confirmation page
-  return (
-    <div>
-      <h1>Deleting Account....</h1>
-    </div>
-  );
 }
