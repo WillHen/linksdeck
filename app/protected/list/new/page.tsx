@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { supabase } from '@/lib/supabaseClient';
 
 import { createListAndLinksAction } from './actions';
 
@@ -17,11 +16,18 @@ export default function AddListPage() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
+      try {
+        const userResponse = await fetch('/api/user');
+        if (!userResponse.ok) {
+          throw new Error('Failed to fetch user');
+        }
+        const { user } = await userResponse.json();
 
-      if (!user) {
+        if (!user) {
+          router.push('/sign-in');
+        }
+      } catch (error) {
+        console.error('Error checking user:', error);
         router.push('/sign-in');
       }
     };

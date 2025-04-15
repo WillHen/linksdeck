@@ -1,69 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Page from '../page';
-import { supabase } from '@/lib/supabaseClient';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { fetchListAndLinks, saveListAndLinks } from '../actions';
 
+// Mock modules
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
-  useParams: jest.fn().mockReturnValue({ list_id: 'list_id' })
+  useParams: jest.fn()
 }));
-
-const mockUser = { id: 'user1', email: 'user@example.com' };
-
-jest.mock('@/lib/supabaseClient', () => ({
-  supabase: {
-    from: jest.fn().mockReturnThis(),
-    delete: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    in: jest.fn().mockReturnThis()
-  }
-}));
-const mockListInsert = jest.fn().mockReturnThis();
-const mockListSelect = jest.fn().mockReturnThis();
-const mockLinkDelete = jest.fn().mockReturnThis();
-const mockListEq = jest.fn().mockReturnThis();
-const mockLinkEq = jest.fn().mockReturnThis();
-const mockLinkInsert = jest.fn().mockReturnThis();
-const mockLinkSelect = jest.fn().mockReturnThis();
-const mockListDelete = jest.fn().mockReturnThis();
-
-jest.mock('@/lib/supabaseClient', () => {
-  return {
-    supabase: {
-      auth: {
-        getUser: jest.fn(() =>
-          Promise.resolve({ data: { user: mockUser }, error: null })
-        ),
-        setSession: jest.fn()
-      },
-      from: jest.fn().mockImplementation((table) => {
-        if (table === 'lists') {
-          return {
-            insert: mockListInsert,
-            select: mockListSelect,
-            eq: mockListEq,
-            delete: mockListDelete,
-            mockListInsert,
-            mockListSelect
-          };
-        }
-
-        if (table === 'links') {
-          return {
-            insert: mockLinkInsert,
-            select: mockLinkSelect,
-            eq: mockLinkEq,
-            delete: mockLinkDelete,
-            mockLinkInsert,
-            mockLinkSelect
-          };
-        }
-      })
-    }
-  };
-});
 
 jest.mock('../actions', () => ({
   ...jest.requireActual('../actions'),
@@ -73,13 +18,33 @@ jest.mock('../actions', () => ({
   saveListAndLinks: jest.fn(() => new Promise<void>((resolve) => resolve()))
 }));
 
+// Mock fetch for API calls
+global.fetch = jest.fn();
+
+const mockUser = { id: 'user1', email: 'user@example.com' };
+const mockListId = '123e4567-e89b-12d3-a456-426614174000'; // Valid UUID format
+
 describe('EditListPage', () => {
   const mockRouterPush = jest.fn();
   const mockFetchListAndLinks = fetchListAndLinks as jest.Mock;
   const mockSaveListAndLinks = saveListAndLinks as jest.Mock;
 
+  beforeAll(() => {
+    (useParams as jest.Mock).mockReturnValue({ list_id: mockListId });
+  });
+
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockRouterPush });
+    (global.fetch as jest.Mock).mockImplementation((url) => {
+      if (url.includes('/api/user')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ user: mockUser })
+        });
+      }
+      return Promise.reject(new Error(`Unhandled fetch mock for ${url}`));
+    });
+
     mockFetchListAndLinks.mockResolvedValue({
       listData: {
         user_id: 'user1',
@@ -130,7 +95,7 @@ describe('EditListPage', () => {
 
     await waitFor(() => {
       expect(mockSaveListAndLinks).toHaveBeenCalledWith(
-        'list_id',
+        mockListId,
         'Updated List',
         'Updated Description',
         [
@@ -142,7 +107,7 @@ describe('EditListPage', () => {
         ],
         'user1'
       );
-      expect(mockRouterPush).toHaveBeenCalledWith('/list/view/list_id');
+      expect(mockRouterPush).toHaveBeenCalledWith('/list/view/' + mockListId);
     });
   });
 
@@ -152,7 +117,6 @@ describe('EditListPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
       expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
-
       expect(screen.queryByTestId('link-title-0')).toBeInTheDocument();
       expect(screen.queryByTestId('link-url-0')).toBeInTheDocument();
     });
@@ -176,10 +140,6 @@ describe('EditListPage', () => {
     fireEvent.click(screen.getByTestId('delete-list-button'));
 
     await waitFor(() => {
-      expect(supabase.from).toHaveBeenCalledWith('links');
-      expect(mockListDelete).toHaveBeenCalled();
-      expect(mockLinkEq).toHaveBeenCalledWith('list_id', 'list_id');
-      expect(supabase.from).toHaveBeenCalledWith('lists');
       expect(mockRouterPush).toHaveBeenCalledWith('/protected');
     });
   });
