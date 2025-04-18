@@ -1,9 +1,9 @@
-import { createServiceClient, createClient } from '@/utils/supabase/server';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
-        const supabase = await createServiceClient();
+        const supabase = await createClient();
         const { searchParams } = new URL(request.url);
         const listId = searchParams.get('list_id');
 
@@ -44,11 +44,11 @@ export async function POST(request: Request) {
     try {
         const supabase = await createClient();
 
-        // Get the current user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
 
         const { links } = await request.json();
 
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
-        const supabase = await createServiceClient();
+        const supabase = await createClient();
         const { searchParams } = new URL(request.url);
         const linkIds = searchParams.get('ids');
 
