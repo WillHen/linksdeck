@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Page from '../page';
 import { useRouter, useParams } from 'next/navigation';
-import { fetchListAndLinks, saveListAndLinks } from '../actions';
 
 // Mock modules
 jest.mock('next/navigation', () => ({
@@ -10,24 +9,27 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn()
 }));
 
-jest.mock('../actions', () => ({
-  ...jest.requireActual('../actions'),
-  fetchListAndLinks: jest.fn(
-    () => new Promise((resolve) => resolve({ listData: {}, linksData: [] }))
-  ),
-  saveListAndLinks: jest.fn(() => new Promise<void>((resolve) => resolve()))
-}));
-
 // Mock fetch for API calls
 global.fetch = jest.fn();
 
 const mockUser = { id: 'user1', email: 'user@example.com' };
 const mockListId = '123e4567-e89b-12d3-a456-426614174000'; // Valid UUID format
+const mockList = {
+  id: mockListId,
+  title: 'Test List',
+  description: 'Test Description',
+  user_id: 'user1'
+};
+const mockLinks = [
+  {
+    id: 'link1',
+    title: 'Link 1',
+    url: 'https://example.com'
+  }
+];
 
 describe('EditListPage', () => {
   const mockRouterPush = jest.fn();
-  const mockFetchListAndLinks = fetchListAndLinks as jest.Mock;
-  const mockSaveListAndLinks = saveListAndLinks as jest.Mock;
 
   beforeAll(() => {
     (useParams as jest.Mock).mockReturnValue({ list_id: mockListId });
@@ -42,22 +44,19 @@ describe('EditListPage', () => {
           json: () => Promise.resolve({ user: mockUser })
         });
       }
+      if (url.includes(`/api/lists/${mockListId}`)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ list: mockList })
+        });
+      }
+      if (url.includes('/api/links')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ links: mockLinks })
+        });
+      }
       return Promise.reject(new Error(`Unhandled fetch mock for ${url}`));
-    });
-
-    mockFetchListAndLinks.mockResolvedValue({
-      listData: {
-        user_id: 'user1',
-        title: 'Test List',
-        description: 'Test Description'
-      },
-      linksData: [
-        {
-          id: 'link1',
-          title: 'Link 1',
-          url: 'https://example.com'
-        }
-      ]
     });
   });
 
@@ -94,20 +93,21 @@ describe('EditListPage', () => {
     fireEvent.click(screen.getByTestId('update-list-button'));
 
     await waitFor(() => {
-      expect(mockSaveListAndLinks).toHaveBeenCalledWith(
-        mockListId,
-        'Updated List',
-        'Updated Description',
-        [
-          {
-            id: 'link1',
-            title: 'Link 1',
-            url: 'https://example.com'
-          }
-        ],
-        'user1'
+      expect(global.fetch).toHaveBeenCalledWith(
+        `/api/lists/${mockListId}`,
+        expect.objectContaining({
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: 'Updated List',
+            description: 'Updated Description',
+            links: mockLinks.map(({ title, url }) => ({ title, url }))
+          })
+        })
       );
-      expect(mockRouterPush).toHaveBeenCalledWith('/list/view/' + mockListId);
+      expect(mockRouterPush).toHaveBeenCalledWith(`/list/view/${mockListId}`);
     });
   });
 
@@ -140,6 +140,12 @@ describe('EditListPage', () => {
     fireEvent.click(screen.getByTestId('delete-list-button'));
 
     await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        `/api/lists/${mockListId}`,
+        expect.objectContaining({
+          method: 'DELETE'
+        })
+      );
       expect(mockRouterPush).toHaveBeenCalledWith('/protected');
     });
   });
