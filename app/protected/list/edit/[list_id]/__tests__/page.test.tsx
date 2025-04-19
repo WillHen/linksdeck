@@ -103,7 +103,11 @@ describe('EditListPage', () => {
           body: JSON.stringify({
             title: 'Updated List',
             description: 'Updated Description',
-            links: mockLinks.map(({ title, url }) => ({ title, url }))
+            links: mockLinks.map(({ title, url, id }) => ({
+              title,
+              url,
+              ...(id && { id })
+            }))
           })
         })
       );
