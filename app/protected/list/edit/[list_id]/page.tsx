@@ -104,7 +104,6 @@ export default function EditListPage() {
           throw new Error('Failed to delete links');
         }
       }
-
       // Then update the list and create/update links in a single request
       const response = await fetch(`/api/lists/${list_id}`, {
         method: 'PUT',
@@ -116,7 +115,8 @@ export default function EditListPage() {
           description: values.description,
           links: values.links.map((link) => ({
             title: link.title,
-            url: link.url
+            url: link.url,
+            ...(link.id && { id: link.id })
           }))
         })
       });
