@@ -90,16 +90,6 @@ export async function PUT(
             return NextResponse.json({ error: listError.message }, { status: 500 });
         }
 
-        // Delete existing links for this list
-        const { error: deleteError } = await supabase
-            .from('links')
-            .delete()
-            .eq('list_id', list_id)
-            .eq('user_id', user.id);
-
-        if (deleteError) {
-            return NextResponse.json({ error: deleteError.message }, { status: 500 });
-        }
 
         // Insert new links if any
         if (links && links.length > 0) {
