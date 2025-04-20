@@ -31,11 +31,11 @@ async function fetchListAndLinks(list_id: string) {
   return { listData, linksData };
 }
 
-interface Params {
-  list_id: string;
-}
-
-export default async function ViewListPage({ params }: { params: Params }) {
+export default async function ViewListPage({
+  params
+}: {
+  params: Promise<{ list_id: string }>;
+}) {
   const { list_id } = await params;
   let title = '';
   let description = '';

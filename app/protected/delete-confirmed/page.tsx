@@ -1,18 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-interface DeleteAccountClientProps {
-  success?: boolean;
-  error?: string;
-}
-
-export default function DeleteAccountClient({
-  success,
-  error
-}: DeleteAccountClientProps) {
+function DeleteConfirmedContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const success = searchParams.get('success') === 'true';
+  const error = searchParams.get('error');
 
   useEffect(() => {
     if (success) {
@@ -26,5 +22,13 @@ export default function DeleteAccountClient({
     <div>
       <h1>{success ? 'Deleting Account...' : 'Error Occurred'}</h1>
     </div>
+  );
+}
+
+export default function DeleteConfirmedPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DeleteConfirmedContent />
+    </Suspense>
   );
 }

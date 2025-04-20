@@ -5,7 +5,7 @@ import { Link } from '@/app/types';
 
 export async function GET(
     request: Request,
-    { params }: { params: { list_id: string } }
+    { params }: { params: Promise<{ list_id: string }> }
 ) {
     try {
         const supabase = await createClient();
@@ -61,7 +61,7 @@ export async function GET(
 
 export async function PUT(
     request: Request,
-    { params }: { params: { list_id: string } }
+    { params }: { params: Promise<{ list_id: string }> }
 ) {
     try {
         const supabase = await createClient();
@@ -137,7 +137,7 @@ export async function PUT(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { list_id: string } }
+    { params }: { params: Promise<{ list_id: string }> }
 ) {
     try {
         const supabase = await createClient();

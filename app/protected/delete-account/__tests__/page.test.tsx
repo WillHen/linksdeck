@@ -1,7 +1,6 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import DeleteAccountPage from '../page';
-import DeleteAccountClient from '../../delete-confirmed/page';
 
 // Mock next/headers
 jest.mock('next/headers', () => ({
@@ -51,13 +50,13 @@ describe('DeleteAccountPage', () => {
     );
   });
 
-  it('should make API call and render success state on successful deletion', async () => {
+  it('should redirect to success page on successful deletion', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       status: 200
     });
 
-    const result = await DeleteAccountPage({
+    await DeleteAccountPage({
       searchParams: { token: 'test-token' }
     });
 
@@ -73,32 +72,35 @@ describe('DeleteAccountPage', () => {
       })
     );
 
-    expect(result.type).toBe(DeleteAccountClient);
-    expect(result.props).toEqual({ success: true });
+    expect(redirect).toHaveBeenCalledWith(
+      '/protected/delete-confirmed?success=true'
+    );
   });
 
-  it('should render error state when API call fails', async () => {
+  it('should redirect to error page when API call fails', async () => {
     (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
 
-    const result = await DeleteAccountPage({
+    await DeleteAccountPage({
       searchParams: { token: 'test-token' }
     });
 
-    expect(result.type).toBe(DeleteAccountClient);
-    expect(result.props).toEqual({ error: 'An unexpected error occurred' });
+    expect(redirect).toHaveBeenCalledWith(
+      '/protected/delete-confirmed?success=false&error=An%20unexpected%20error%20occurred'
+    );
   });
 
-  it('should render error state when API returns non-200 status', async () => {
+  it('should redirect to error page when API returns non-200 status', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 500
     });
 
-    const result = await DeleteAccountPage({
+    await DeleteAccountPage({
       searchParams: { token: 'test-token' }
     });
 
-    expect(result.type).toBe(DeleteAccountClient);
-    expect(result.props).toEqual({ success: false });
+    expect(redirect).toHaveBeenCalledWith(
+      '/protected/delete-confirmed?success=false'
+    );
   });
 });

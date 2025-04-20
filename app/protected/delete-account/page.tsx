@@ -2,18 +2,17 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { createClient } from '@/utils/supabase/server';
-import DeleteAccountClient from '../delete-confirmed/page';
 
 interface DeleteAccountPageProps {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }
 
 export default async function DeleteAccountPage({
   searchParams
 }: DeleteAccountPageProps) {
-  const params = await searchParams;
+  const params = searchParams;
 
-  const { token } = params;
+  const { token } = await params;
 
   if (!token) {
     // Redirect to an error page or home if the token is missing
@@ -43,13 +42,15 @@ export default async function DeleteAccountPage({
       }
     });
 
-    if (result.status > 200) {
-      return <DeleteAccountClient success={false} />;
+    if (result?.status > 200) {
+      redirect('/protected/delete-confirmed?success=false');
     }
 
-    return <DeleteAccountClient success />;
+    redirect('/protected/delete-confirmed?success=true');
   } catch (err) {
     console.error('Error calling delete-user API:', err);
-    return <DeleteAccountClient error='An unexpected error occurred' />;
+    redirect(
+      '/protected/delete-confirmed?success=false&error=An%20unexpected%20error%20occurred'
+    );
   }
 }
