@@ -1,12 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
-interface Link {
-    title: string;
-    url: string;
-    description?: string;
-    id?: string;
-}
+import { Link } from '@/app/types';
 
 export async function GET(
     request: Request,

@@ -7,13 +7,7 @@ import { ListForm, SaveAction } from '@/app/protected/list/components';
 
 import type { FormDetails } from '@/app/protected/list/components/ListForm';
 
-interface Link {
-  title: string;
-  url: string;
-  id?: string;
-  description?: string | undefined;
-  new_id?: string;
-}
+import { EditableLink, Link } from '@/app/types';
 
 export default function EditListPage() {
   const router = useRouter();
@@ -23,7 +17,7 @@ export default function EditListPage() {
   const [initialValues, setInitialValues] = useState({
     title: '',
     description: '',
-    links: [] as Link[]
+    links: [] as EditableLink[]
   });
 
   const handleDeleteList = async (listId: string) => {
