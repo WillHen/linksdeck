@@ -31,7 +31,7 @@ export default async function DeleteAccountPage({
   const baseUrl = `${protocol}://${host}`;
 
   try {
-    const result = await fetch(`${baseUrl}/api/confirm_deletion`, {
+    const result = await fetch(`${baseUrl}/api/confirm-deletion`, {
       method: 'POST',
       body: JSON.stringify({
         token
