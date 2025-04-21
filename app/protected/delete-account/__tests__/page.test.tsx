@@ -61,7 +61,7 @@ describe('DeleteAccountPage', () => {
     });
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://example.com/api/confirm_deletion',
+      'https://example.com/api/confirm-deletion',
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({
