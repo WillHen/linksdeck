@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import crypto from 'crypto';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 
 const generateToken = (length = 32) => {
@@ -38,6 +42,14 @@ export async function POST() {
                     expiration: expiration.toISOString(),
                 },
             ]);
+
+        await resend.emails.send({
+            from: 'LinksDeck <info@linksdeck.com>',
+            to: [user.email as string],
+            subject: 'Account Deletion Confirmation',
+            html: `<p>To confirm your account deletion, please click the link below:</p>
+            <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/protected/delete-account?token=${token}">Confirm Account Deletion</a></p>`
+        });
 
 
         // Respond with success
