@@ -12,7 +12,7 @@ export default function DeleteAccountClient() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/start_cancellation', {
+      const response = await fetch('/api/start-cancellation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
