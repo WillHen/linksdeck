@@ -13,7 +13,6 @@ export default function EditListPage() {
   const router = useRouter();
   const { list_id } = useParams();
   const [isLoading, setisLoading] = useState(true);
-  const [, setError] = useState('');
   const [initialValues, setInitialValues] = useState({
     title: '',
     description: '',
@@ -32,8 +31,10 @@ export default function EditListPage() {
 
       router.push('/protected');
     } catch (error: unknown) {
-      const message = (error as Error).message;
-      console.error('Error deleting list:', message);
+      if (error instanceof Error) {
+        const deleteError = new Error('Error deleting list:', { cause: error });
+        console.error(deleteError);
+      }
     }
   };
 
@@ -50,14 +51,18 @@ export default function EditListPage() {
         const listResponse = await fetch(`/api/lists/${list_id}`);
 
         if (!listResponse.ok) {
-          throw new Error('Failed to fetch list');
+          throw new Error(
+            `Failed to fetch list, status: ${listResponse.status}`
+          );
         }
         const { list: listData } = await listResponse.json();
 
         // Fetch links data
         const linksResponse = await fetch(`/api/links?list_id=${list_id}`);
         if (!linksResponse.ok) {
-          throw new Error('Failed to fetch links');
+          throw new Error(
+            `Failed to fetch links, status: ${linksResponse.status}`
+          );
         }
         const { links: linksData } = await linksResponse.json();
 
@@ -74,9 +79,8 @@ export default function EditListPage() {
         });
       } catch (err) {
         if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError(String(err));
+          const fetchError = new Error('Error fetching data:', { cause: err });
+          console.error(fetchError);
         }
       }
     };
@@ -121,7 +125,12 @@ export default function EditListPage() {
 
       router.push(`/list/view/${list_id}`);
     } catch (error) {
-      setError((error as Error).message);
+      if (error instanceof Error) {
+        const submitError = new Error('Error submitting form:', {
+          cause: error
+        });
+        console.error(submitError);
+      }
     }
   };
 
