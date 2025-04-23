@@ -19,6 +19,7 @@ export default async function Home() {
         <div className='relative w-[350px] h-[350px] md:w-[450px] md:h-[450px]'>
           <Image
             fill
+            priority
             src='/assets/frontpageimage4.png'
             alt='Background'
             className='object-cover rounded-lg shadow-lg'
