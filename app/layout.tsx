@@ -65,6 +65,21 @@ export default function RootLayout({
                   <Toaster position='top-right' reverseOrder={false} />
                 </div>
               </div>
+              {/* Footer */}
+              <footer className='w-full border-t border-t-foreground/10 py-4 text-center text-xs sm:text-sm text-gray-500'>
+                <div className='max-w-6xl mx-auto px-4'>
+                  <p>
+                    &copy; {new Date().getFullYear()} LinksDeck. All rights
+                    reserved.{' '}
+                    <a
+                      href='mailto:william@linksdeck.com'
+                      className='text-blue-500 hover:underline'
+                    >
+                      Contact
+                    </a>
+                  </p>
+                </div>
+              </footer>
             </main>
           )}
         </ThemeProvider>
