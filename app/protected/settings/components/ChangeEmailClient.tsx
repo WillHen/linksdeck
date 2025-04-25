@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 
+import { emailRegex } from '@/app/constants';
+
 export default function ChangeEmailClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,6 @@ export default function ChangeEmailClient() {
     setSuccess(null);
 
     // Validate email format
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       console.log('Email validation failed');
       setError('Invalid email address');

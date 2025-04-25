@@ -1,12 +1,14 @@
 import { createServiceClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
+import { emailRegex } from '@/app/constants';
+
 export async function POST(req: Request) {
     const supabase = await createServiceClient();
     const { email } = await req.json();
 
     // Validate the email
-    if (!email || typeof email !== 'string' || !email.includes('@')) {
+    if (!emailRegex.test(email)) {
         return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
