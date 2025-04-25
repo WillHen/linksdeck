@@ -21,8 +21,8 @@ export default async function ProtectedPage() {
   const { data: lists } = await getListsFromSupabase(supabase, user.id);
 
   return (
-    <div className='flex-1 w-full flex flex-col gap-12 flex-wrap sm:py-10 sm:px-20'>
-      <div className='relative flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-xl items-center justify-center p-4'>
+    <div className='flex-1 w-full flex flex-col gap-4 flex-wrap py-4 sm:py-6 sm:px-6 md:py-8 md:px-12 max-w-[320px] sm:max-w-[700px] lg:max-w-[1000px] xl:max-w-[1200px] mx-auto'>
+      <div className='relative w-full flex min-h-[400px] md:min-h-[500px] flex-col gap-4 bg-cover bg-center bg-no-repeat sm:gap-6 md:gap-8 rounded-lg items-center justify-center p-4'>
         <Image
           src='/assets/linksdeckbackground3.png'
           alt='Background'
@@ -34,10 +34,10 @@ export default async function ProtectedPage() {
           className='z-[-1]' // Ensures the image is behind the content
         />
         <div className='flex flex-col gap-2 text-center'>
-          <h1 className='text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em]'>
+          <h1 className='text-white text-2xl font-bold leading-tight tracking-[-0.02em] sm:text-3xl md:text-4xl'>
             Welcome to LinksDeck
           </h1>
-          <h2 className='text-white text-sm font-normal leading-normal @[480px]:text-base @[480px]:font-normal @[480px]:leading-normal'>
+          <h2 className='text-white text-sm font-normal leading-snug sm:text-base md:text-lg'>
             Organize your links into lists that you can share and explore. Start
             by creating your first list.
           </h2>
@@ -47,13 +47,16 @@ export default async function ProtectedPage() {
           className='flex items-center gap-2 text-blue-500 hover:underline'
           data-testid='create-list-link'
         >
-          <button className='flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-[#1980e6] text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em]'>
+          <button className='flex w-full max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 sm:h-12 sm:px-5 bg-[#1980e6] text-white text-sm font-bold leading-normal tracking-[0.01em] sm:text-base'>
             <span className='truncate'>Create new list</span>
           </button>
         </Link>
       </div>
       <div className='flex flex-col gap-2 items-start'>
-        <h2 data-testid='your-lists-header' className='font-bold text-2xl mb-4'>
+        <h2
+          data-testid='your-lists-header'
+          className='font-bold text-lg mb-4 sm:text-xl'
+        >
           Your Lists
         </h2>
         {lists && lists.length > 0 ? (
@@ -69,7 +72,7 @@ export default async function ProtectedPage() {
             ))}
           </div>
         ) : (
-          <p>No lists available.</p>
+          <p className='text-sm text-gray-600'>No lists available.</p>
         )}
       </div>
     </div>

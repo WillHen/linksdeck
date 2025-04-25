@@ -37,6 +37,9 @@ export default function RootLayout({
       className={`${interFont.className}`}
       suppressHydrationWarning
     >
+      <head>
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+      </head>
       <body className='bg-background text-foreground'>
         <ThemeProvider
           attribute='class'
