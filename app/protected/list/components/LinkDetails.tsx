@@ -3,16 +3,18 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Field, ErrorMessage, useFormikContext } from 'formik';
 import { useState } from 'react';
 
+type LinkChangeFunc = (
+  index: number,
+  value: { title: string; url: string; id?: string; new_id?: string },
+  id?: string,
+  new_id?: string
+) => void;
+
 interface LinkProps {
   title: string;
   url: string;
   linkIndex: number;
-  onChange: (
-    index: number,
-    value: { title: string; url: string; id?: string; new_id?: string },
-    id?: string,
-    new_id?: string
-  ) => void;
+  onChange: LinkChangeFunc;
   onDeleteLink: (index: number) => void;
   id?: string;
   new_id?: string;
@@ -46,7 +48,6 @@ export function LinkDetails({
         isDeleting ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      {/* Link Title */}
       <div>
         <label
           htmlFor={`links[${linkIndex}].title`}
@@ -116,13 +117,6 @@ export function LinkDetails({
             );
           }}
         />
-        {/* {errors.links &&
-          errors.links[linkIndex] &&
-          errors.links[linkIndex].url && (
-            <div className='text-red-500 text-sm mt-1'>
-              {errors.links[linkIndex].url}
-            </div>
-          )} */}
         <ErrorMessage
           name={`links[${linkIndex}].url`}
           data-testid={`link-url-${linkIndex}-error`}

@@ -76,7 +76,7 @@ export function ListForm({
         >
           {title}
         </h1>
-        {saveAction === SaveAction.Update && deleteList && (
+        {deleteList && (
           <button
             type='button'
             onClick={deleteList}
@@ -99,14 +99,15 @@ export function ListForm({
           try {
             await handleSubmit(values, linksToDelete);
           } catch (error: unknown) {
-            console.error('Error saving list:', (error as Error).message);
+            if (error instanceof Error) {
+              console.error('Error saving list:', { cause: error });
+            }
           }
         }}
       >
         {({ values, setFieldValue }) => {
           return (
             <Form>
-              {/* List Title */}
               <div className='mb-8'>
                 <label
                   htmlFor='title'
@@ -129,7 +130,6 @@ export function ListForm({
                 />
               </div>
 
-              {/* List Description */}
               <div className='mb-8'>
                 <label
                   htmlFor='description'
@@ -147,7 +147,6 @@ export function ListForm({
                 />
               </div>
 
-              {/* Links Section */}
               <div className='mb-8'>
                 <h2 className='text-xl font-medium text-gray-700 mb-4'>
                   Links
