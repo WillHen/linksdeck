@@ -24,7 +24,7 @@ const isUnderConstruction =
 export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: 'LinksDeck',
-  description: 'Sure your favorite links all in one place'
+  description: 'Share your favorite links all in one place'
 };
 
 export default function RootLayout({
