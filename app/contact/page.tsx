@@ -1,6 +1,6 @@
 'use client';
 
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-hot-toast';
 
@@ -21,7 +21,7 @@ export default function ContactPage() {
 
   const handleSubmit = async (
     values: typeof initialValues,
-    { resetForm }: any
+    { resetForm }: FormikHelpers<typeof initialValues>
   ) => {
     try {
       const res = await fetch('/api/contact-us', {
