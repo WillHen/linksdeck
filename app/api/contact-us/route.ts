@@ -10,7 +10,7 @@ export async function POST(req: Request) {
             from: 'no-reply@linksdeck.com',
             to: 'william@linksdeck.com',
             subject,
-            // text: `From: ${email}\n\n${message}`,
+            text: `From: ${email}\n\n${message}`,
         });
 
         if (emailResponse.error) {
