@@ -7,6 +7,7 @@ import { SplashScreen } from './SplashScreen';
 import './globals.css';
 
 import { Inter } from 'next/font/google';
+import Link from 'next/link';
 
 const interFont = Inter({
   subsets: ['latin'],
@@ -71,12 +72,12 @@ export default function RootLayout({
                   <p>
                     &copy; {new Date().getFullYear()} LinksDeck. All rights
                     reserved.{' '}
-                    <a
-                      href='mailto:william@linksdeck.com'
+                    <Link
+                      href='/contact'
                       className='text-blue-500 hover:underline'
                     >
                       Contact
-                    </a>
+                    </Link>
                   </p>
                 </div>
               </footer>
