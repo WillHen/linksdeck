@@ -29,17 +29,23 @@ export type FormDetails = {
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('List title is required'),
   description: Yup.string(),
-  links: Yup.array().of(
-    Yup.object().shape({
-      title: Yup.string().required('Link title is required'),
-      url: Yup.string()
-        .matches(
-          /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i,
-          'Invalid URL'
-        )
-        .required('Link URL is required')
-    })
-  )
+  links: Yup.array()
+    .of(
+      Yup.object().shape({
+        title: Yup.string().required('Link title is required'),
+        url: Yup.string()
+          .matches(
+            /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i,
+            'Invalid URL'
+          )
+          .required('Link URL is required')
+      })
+    )
+    .test(
+      'max-links',
+      'You cannot add more than 10 links.',
+      (links) => !links || links.length <= 10
+    )
 });
 
 export function ListForm({
@@ -196,9 +202,15 @@ export function ListForm({
                         onClick={() => {
                           push({ title: '', url: '', new_id: uuidv4() });
                         }}
+                        disabled={values.links.length >= 10}
                       >
                         Add Link
                       </button>
+                      {values.links.length >= 10 && (
+                        <p className='text-red-500 text-sm mt-2'>
+                          You can only add a maximum of 10 links.
+                        </p>
+                      )}
                     </div>
                   )}
                 </FieldArray>
