@@ -51,56 +51,40 @@ export default async function ViewListPage({
   }
 
   return (
-    <div className='max-w-[960px] flex flex-1 justify-start items-start flex-col h-[695px]'>
-      <div className='flex flex-wrap self-stretch justify-between items-start flex-row gap-3 p-4'>
-        <div className='min-w-[288px] flex justify-start items-start flex-col gap-3'>
-          <div
-            className='flex justify-start items-start flex-col w-[288px]'
-            style={{ width: '288px' }}
-          >
+    <div className='flex flex-col items-center min-h-screen px-4 py-8'>
+      <div className='max-w-[960px] w-full flex flex-col items-center gap-6'>
+        <div className='flex flex-col items-center gap-4'>
+          <div className='w-full text-center'>
             <p
               data-testid='view-list-header'
-              className='self-stretch text-[#121417] text-[32px] font-bold leading-10'
+              className='text-[#121417] text-[32px] font-bold leading-10'
             >
               {title}
             </p>
           </div>
-          <div
-            className='flex justify-start items-start flex-col w-[288px]'
-            style={{ width: '288px' }}
-          >
-            <p className='self-stretch text-[#61788A] text-sm leading-[21px]'>
+          <div className='w-full text-center'>
+            <p className='text-[#61788A] text-sm leading-[21px]'>
               {description}
             </p>
           </div>
         </div>
-      </div>
-      {linksData.map((link, index) => {
-        return (
-          <Link key={index} href={link.url} target='_blank'>
-            <div
-              key={index}
-              className='min-h-[72px] flex self-stretch justify-start items-center flex-row gap-4 py-2 px-4 bg-[#FFFFFF] h-[72px]'
-            >
-              <div className='flex justify-center items-start flex-col'>
-                <div
-                  className='flex justify-start items-start flex-col w-[147px]'
-                  style={{ width: '147px' }}
-                >
-                  <p className='self-stretch text-[#121417] font-medium leading-6'>
+        <div className='w-full min-w-[370px] flex flex-col gap-4 mx-auto'>
+          {linksData.map((link, index) => (
+            <Link key={index} href={link.url} target='_blank'>
+              <div className='min-h-[72px] flex justify-between items-center gap-4 py-2 px-4 bg-[#FFFFFF] shadow-md rounded-lg'>
+                <div className='flex flex-col'>
+                  <p className='text-[#121417] font-medium text-lg leading-7'>
                     {link.title}
                   </p>
-                </div>
-                <div className='flex justify-start items-start flex-col'>
-                  <p className='self-stretch text-[#61788A] text-sm leading-[21px]'>
+                  <p className='text-[#61788A] text-base leading-6'>
                     {link.url}
                   </p>
                 </div>
               </div>
-            </div>
-          </Link>
-        );
-      })}
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
