@@ -74,7 +74,7 @@ export default function RootLayout({
                     reserved.{' '}
                     <Link
                       href='/contact'
-                      className='text-blue-500 hover:underline'
+                      className='text-black hover:underline'
                     >
                       Contact
                     </Link>

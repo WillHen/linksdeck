@@ -47,7 +47,7 @@ export default async function ProtectedPage() {
           className='flex items-center gap-2 text-blue-500 hover:underline'
           data-testid='create-list-link'
         >
-          <button className='flex w-full max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 sm:h-12 sm:px-5 bg-[#1980e6] text-white text-sm font-bold leading-normal tracking-[0.01em] sm:text-base'>
+          <button className='flex w-full max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 sm:h-12 sm:px-5 bg-[#1565c0] text-white text-sm font-bold leading-normal tracking-[0.01em] sm:text-base'>
             <span className='truncate'>Create new list</span>
           </button>
         </Link>
