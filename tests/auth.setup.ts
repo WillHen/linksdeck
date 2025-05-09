@@ -1,10 +1,10 @@
-import { test as setup } from '@playwright/test';
+import { Page, test as setup } from '@playwright/test';
 import path from 'path';
 
 const authFilePath = (user: string) =>
   path.join(__dirname, `../playwright/.auth/${user}.json`);
 
-async function authenticateUser(page, email: string, password: string, user: string) {
+async function authenticateUser(page: Page, email: string, password: string, user: string) {
   try {
     // Perform authentication steps
     await page.goto('http://localhost:3000');
