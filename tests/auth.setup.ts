@@ -41,3 +41,7 @@ setup('authenticate as user1', async ({ page }) => {
 setup('authenticate as user2', async ({ page }) => {
   await authenticateUser(page, 'testemail1234@example.com', 'password123', 'user2');
 });
+
+setup('authenticate as user3', async ({ page }) => {
+  await authenticateUser(page, 'testemail12345@example.com', 'password123', 'user3');
+});
