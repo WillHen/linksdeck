@@ -10,7 +10,12 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function seedUsers() {
   const users = [
     {
-      email: 'whenshaw87@outlook.com',
+      email: 'testemail123@example.com',
+      password: 'password123',
+      user_metadata: { display_name: 'Will Henshaw' }
+    },
+    {
+      email: 'testemail1234@example.com',
       password: 'password123',
       user_metadata: { display_name: 'Will Henshaw' }
     }

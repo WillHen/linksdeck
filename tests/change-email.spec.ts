@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test';
+import path from 'path';
 
+const authFilePath = (user: string) =>
+    path.join(__dirname, `../playwright/.auth/${user}.json`);
+
+test.use({
+    storageState: authFilePath('user1'),
+});
 
 test.describe('Change Email', () => {
     test.beforeEach(async ({ page }) => {
