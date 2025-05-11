@@ -5,12 +5,10 @@ import Page from '../page';
 jest.mock('next/headers', () => ({
   cookies: jest.fn(() => ({
     get: jest.fn((key) => {
-      if (key === 'auth-token') return { value: 'mock-token' }; // Mock specific cookie values
+      if (key === 'auth-token') return { value: 'mock-token' };
       return null;
     }),
-    getAll: jest.fn(() => [
-      { name: 'auth-token', value: 'mock-token' } // Mock all cookies
-    ])
+    getAll: jest.fn(() => [{ name: 'auth-token', value: 'mock-token' }])
   }))
 }));
 
