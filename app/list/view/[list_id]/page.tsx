@@ -9,6 +9,10 @@ import {
   getLinksFromSupabaseAnon
 } from '@/app/utils';
 
+function truncateText(text: string, maxLength: number): string {
+  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+}
+
 async function fetchListAndLinks(list_id: string) {
   const supabase = await createClient();
   const { data: listData, error: listError } = await getListsFromSupabaseAnon(
@@ -70,16 +74,16 @@ export default async function ViewListPage({
             </p>
           </div>
         </div>
-        <div className='w-full min-w-[370px] flex flex-col gap-4 mx-auto'>
+        <div className='w-full min-w-[370px] sm:max-w-[450px] max-w-[10px] flex flex-col gap-4 mx-auto'>
           {linksData.map((link, index) => (
             <Link key={index} href={link.url} target='_blank'>
               <div className='min-h-[72px] flex justify-between items-center gap-4 py-2 px-4 bg-[#FFFFFF] shadow-md rounded-lg'>
-                <div className='flex flex-col'>
+                <div className='flex flex-col sm: max-w-[420px] max-w-[340px]'>
                   <p className='text-[#121417] font-medium text-lg leading-7'>
                     {link.title}
                   </p>
-                  <p className='text-[#61788A] text-base leading-6'>
-                    {link.url}
+                  <p className='text-[#61788A] text-base leading-6 break-all'>
+                    {truncateText(link.url, 50)}
                   </p>
                 </div>
               </div>
