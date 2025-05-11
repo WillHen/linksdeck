@@ -18,6 +18,11 @@ async function seedUsers() {
       email: 'testemail1234@example.com',
       password: 'password123',
       user_metadata: { display_name: 'Will Henshaw' }
+    },
+    {
+      email: 'testemail12345@example.com',
+      password: 'password123',
+      user_metadata: { display_name: 'Will Henshaw' }
     }
   ];
 

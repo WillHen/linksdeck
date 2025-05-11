@@ -207,7 +207,10 @@ export function ListForm({
                         Add Link
                       </button>
                       {values.links.length >= 10 && (
-                        <p className='text-red-500 text-sm mt-2'>
+                        <p
+                          data-testid='link-limit-error'
+                          className='text-red-500 text-sm mt-2'
+                        >
                           You can only add a maximum of 10 links.
                         </p>
                       )}

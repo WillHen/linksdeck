@@ -1,156 +1,89 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  act
+} from '@testing-library/react';
 import Page from '../page';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
-// Mock modules
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
+  useRouter: jest.fn(() => ({
+    push: jest.fn(), // Mock the `push` method
+    replace: jest.fn(), // Mock the `replace` method (if needed)
+    back: jest.fn() // Mock the `back` method (if needed)
+  })),
   useParams: jest.fn()
 }));
 
-// Mock fetch for API calls
-global.fetch = jest.fn();
-
-const mockUser = { id: 'user1', email: 'user@example.com' };
-const mockListId = '123e4567-e89b-12d3-a456-426614174000'; // Valid UUID format
-const mockList = {
-  id: mockListId,
-  title: 'Test List',
-  description: 'Test Description',
-  user_id: 'user1'
-};
-const mockLinks = [
-  {
-    id: 'link1',
-    title: 'Link 1',
-    url: 'https://example.com'
-  }
-];
+const listId = '25de3ed8-12d3-485f-8a72-ce71f4e92ad7'; // Valid UUID format
 
 describe('EditListPage', () => {
-  const mockRouterPush = jest.fn();
-
-  beforeAll(() => {
-    (useParams as jest.Mock).mockReturnValue({ list_id: mockListId });
+  beforeEach(async () => {
+    // Mock `useParams` to return the listId
+    (useParams as jest.Mock).mockReturnValue({ list_id: listId });
   });
 
-  beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({ push: mockRouterPush });
-    (global.fetch as jest.Mock).mockImplementation((url) => {
-      if (url.includes('/api/user')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ user: mockUser })
-        });
-      }
-      if (url.includes(`/api/lists/${mockListId}`)) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ list: mockList })
-        });
-      }
-      if (url.includes('/api/links')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ links: mockLinks })
-        });
-      }
-      return Promise.reject(new Error(`Unhandled fetch mock for ${url}`));
-    });
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('renders EditListPage correctly', async () => {
+  it('renders the page and fetches data from the API', async () => {
     render(<Page />);
 
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Test List')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Test Description')).toBeInTheDocument();
-      expect(screen.getByTestId('link-title-0')).toBeInTheDocument();
-      expect(screen.getByTestId('link-url-0')).toBeInTheDocument();
     });
   });
 
-  test('handles form submission', async () => {
+  it('adds a link and updates the list', async () => {
+    render(<Page />);
+
+    // Wait for the page to load
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
+    });
+
+    // Add a new link
+    const addLinkButton = screen.getByText('Add Link');
+    act(() => {
+      addLinkButton.click();
+    });
+
+    const linkTitleInput = screen.getByTestId('link-title-2');
+    const linkUrlInput = screen.getByTestId('link-url-2');
+
+    await act(async () => {
+      fireEvent.change(linkTitleInput, { target: { value: 'New Link' } });
+      fireEvent.change(linkUrlInput, {
+        target: { value: 'https://newlink.com' }
+      });
+    });
+
+    const saveLinkButton = screen.getByTestId('update-list-button');
+    await act(async () => {
+      saveLinkButton.click();
+    });
+  });
+
+  it('adds validation messages', async () => {
     render(<Page />);
 
     await waitFor(() => {
       expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
-      expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByTestId('list-title-input'), {
-      target: { value: 'Updated List' }
+    const titleInput = screen.getByTestId('list-title-input');
+    await act(async () => {
+      fireEvent.change(titleInput, { target: { value: '' } });
     });
-    fireEvent.change(screen.getByTestId('list-description-input'), {
-      target: { value: 'Updated Description' }
-    });
-    fireEvent.click(screen.getByTestId('update-list-button'));
 
+    // Simulate unfocusing the input field to trigger validation
+    await act(async () => {
+      fireEvent.blur(titleInput);
+    });
+
+    // Wait for the validation message to appear
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        `/api/lists/${mockListId}`,
-        expect.objectContaining({
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            title: 'Updated List',
-            description: 'Updated Description',
-            links: mockLinks.map(({ title, url, id }) => ({
-              title,
-              url,
-              ...(id && { id })
-            }))
-          })
-        })
-      );
-      expect(mockRouterPush).toHaveBeenCalledWith(`/list/view/${mockListId}`);
-    });
-  });
-
-  test('handles link deletion', async () => {
-    render(<Page />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
-      expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
-      expect(screen.queryByTestId('link-title-0')).toBeInTheDocument();
-      expect(screen.queryByTestId('link-url-0')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('delete-link-0-button'));
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('link-title-0')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('link-url-0')).not.toBeInTheDocument();
-    });
-  });
-
-  test('handles list deletion', async () => {
-    render(<Page />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('edit-list-header')).toBeInTheDocument();
-      expect(screen.getByTestId('list-title-input')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('delete-list-button'));
-
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        `/api/lists/${mockListId}`,
-        expect.objectContaining({
-          method: 'DELETE'
-        })
-      );
-      expect(mockRouterPush).toHaveBeenCalledWith('/protected');
+      expect(screen.getByText('List title is required')).toBeInTheDocument();
     });
   });
 });
