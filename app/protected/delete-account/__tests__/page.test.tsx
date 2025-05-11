@@ -28,9 +28,6 @@ jest.mock('@/utils/supabase/server', () => ({
   })
 }));
 
-// Mock fetch
-global.fetch = jest.fn();
-
 describe('DeleteAccountPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -41,6 +38,9 @@ describe('DeleteAccountPage', () => {
         return null;
       })
     });
+
+    // Mock fetch
+    global.fetch = jest.fn();
   });
 
   it('should redirect when no token is provided', async () => {
