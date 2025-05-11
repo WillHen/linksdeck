@@ -47,7 +47,9 @@ export default async function ViewListPage({
     description = listData.description ?? '';
     linksData = links;
   } catch (err) {
-    console.error('Error fetching list and links:', err);
+    if (err instanceof Error) {
+      console.error('Error fetching list and links:', { cause: err });
+    }
   }
 
   return (
