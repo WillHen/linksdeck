@@ -4,52 +4,52 @@ import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-hot-toast';
 
-export default function ContactPage() {
-  const initialValues = {
-    email: '',
-    subject: '',
-    message: ''
-  };
+const validationSchema = Yup.object({
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  subject: Yup.string().required('Subject is required'),
+  message: Yup.string().required('Message is required')
+});
 
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
-    subject: Yup.string().required('Subject is required'),
-    message: Yup.string().required('Message is required')
-  });
+const initialValues = {
+  email: '',
+  subject: '',
+  message: ''
+};
 
-  const handleSubmit = async (
-    values: typeof initialValues,
-    { resetForm }: FormikHelpers<typeof initialValues>
-  ) => {
-    try {
-      const res = await fetch('/api/contact-us', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(values)
-      });
+const handleSubmit = async (
+  values: typeof initialValues,
+  { resetForm }: FormikHelpers<typeof initialValues>
+) => {
+  try {
+    const res = await fetch('/api/contact-us', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(values)
+    });
 
-      if (!res.ok) {
-        throw new Error('Failed to send email.', { cause: res });
-      }
-
-      toast.success('Email sent successfully! We will get back to you soon.', {
-        duration: 6000,
-        className: 'toast-success'
-      });
-      resetForm();
-    } catch (err) {
-      console.error('Error sending email:', err);
-      toast.error('Failed to send email. Please try again later.', {
-        duration: 6000,
-        className: 'toast-error'
-      });
+    if (!res.ok) {
+      throw new Error('Failed to send email.', { cause: res });
     }
-  };
 
+    toast.success('Email sent successfully! We will get back to you soon.', {
+      duration: 6000,
+      className: 'toast-success'
+    });
+    resetForm();
+  } catch (err) {
+    console.error('Error sending email:', err);
+    toast.error('Failed to send email. Please try again later.', {
+      duration: 6000,
+      className: 'toast-error'
+    });
+  }
+};
+
+export default function ContactPage() {
   return (
     <div className='flex flex-col items-center min-h-screen px-4 py-8 mt-24 sm:px-6'>
       <div className='w-full max-w-md space-y-6'>
