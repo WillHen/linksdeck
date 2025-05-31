@@ -48,7 +48,7 @@ export async function POST() {
             to: [user.email as string],
             subject: 'Account Deletion Confirmation',
             html: `<p>We’re sorry to see you go! We’ve received a request to cancel your account, and we’re here to help. If you wish to proceed with canceling your account, please click the link below:</p>
-            <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/protected/delete-account?token=${token}">Confirm Account Deletion</a></p>
+            <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/sign-in?redirect_to=/protected/delete-account?token=${token}">Confirm Account Deletion</a></p>
             <p>By clicking this link, your account will be permanently closed, and all associated data will be deleted. Please note that this action is irreversible.</p>`
         });
 
