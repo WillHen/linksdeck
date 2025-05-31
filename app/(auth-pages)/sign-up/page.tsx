@@ -3,11 +3,22 @@ import { FormMessage, Message } from '@/components/form-message';
 import { SubmitButton } from '@/components/submit-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export default async function Signup(props: {
   searchParams: Promise<Message>;
 }) {
+  const supabase = await createClient();
+  // Get the current user session
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect('/protected');
+  }
   const searchParams = await props.searchParams;
   if ('message' in searchParams) {
     return (
