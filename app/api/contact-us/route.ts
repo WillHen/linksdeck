@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { NextResponse } from 'next/server';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -15,16 +16,15 @@ export async function POST(req: Request) {
 
         if (emailResponse.error) {
             console.error(emailResponse.error);
-            return new Response(JSON.stringify({ error: emailResponse.error.message }), {
+            return NextResponse.json({ error: emailResponse.error.message }, {
                 status: 500,
             });
         }
-    } catch (e) {
-        console.error('Error sending email:', e);
-        return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+    } catch (error: unknown) {
+        return NextResponse.json({ error }, {
             status: 500,
         });
     }
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
 }
