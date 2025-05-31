@@ -1,19 +1,24 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
 
-export default function DeleteAccountPage({
-  searchParams
-}: {
-  searchParams: { token?: string };
-}) {
+export default function DeleteAccountPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <DeleteAccountPageInner />
+    </Suspense>
+  );
+}
+
+function DeleteAccountPageInner() {
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
 
   useEffect(() => {
     const deleteAccount = async () => {
-      const { token } = searchParams;
-
       if (!token) {
         // Redirect to an error page if the token is missing
         router.push('/error?message=Missing cancellation token');
@@ -46,7 +51,7 @@ export default function DeleteAccountPage({
     };
 
     deleteAccount();
-  }, [searchParams, router]);
+  }, [token, router]);
 
   return <p>Processing your request...</p>;
 }
