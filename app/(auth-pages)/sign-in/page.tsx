@@ -1,17 +1,29 @@
 import { signInAction } from '@/app/actions';
+import { createClient } from '@/utils/supabase/server';
 import { FormMessage, Message } from '@/components/form-message';
 import { SubmitButton } from '@/components/submit-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 type SearchParams = Message & { redirect_to?: string };
 
 export default async function Login(props: {
   searchParams: Promise<SearchParams>;
 }) {
+  const supabase = await createClient();
+  // Get the current user session
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
   const searchParams = await props.searchParams;
   const redirectTo = searchParams?.redirect_to || '/protected';
+
+  if (user) {
+    redirect(redirectTo);
+  }
   return (
     <form className='flex-1 flex flex-col min-w-64'>
       <h1 className='text-2xl font-medium'>Sign in</h1>
