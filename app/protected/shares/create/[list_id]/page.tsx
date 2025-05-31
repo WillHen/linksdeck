@@ -17,7 +17,7 @@ const ShareListPage: React.FC = () => {
     setSuccess('');
 
     try {
-      const response = await fetch('/api/share', {
+      const response = await fetch('/api/share/requests/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
