@@ -1,53 +1,34 @@
-import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { render, waitFor } from '@testing-library/react';
+import { useRouter } from 'next/navigation';
 import DeleteAccountPage from '../page';
-
-// Mock next/headers
-jest.mock('next/headers', () => ({
-  headers: jest.fn()
-}));
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
-  redirect: jest.fn()
-}));
-
-// Mock supabase client
-jest.mock('@/utils/supabase/server', () => ({
-  createClient: jest.fn().mockReturnValue({
-    auth: {
-      getSession: jest.fn().mockResolvedValue({
-        data: {
-          session: {
-            access_token: 'test-token'
-          }
-        },
-        error: null
-      })
-    }
-  })
+  useRouter: jest.fn()
 }));
 
 describe('DeleteAccountPage', () => {
+  let pushMock: jest.Mock;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    (headers as jest.Mock).mockReturnValue({
-      get: jest.fn().mockImplementation((key) => {
-        if (key === 'x-forwarded-proto') return 'https';
-        if (key === 'host') return 'example.com';
-        return null;
-      })
-    });
+
+    // Mock useRouter
+    pushMock = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
 
     // Mock fetch
     global.fetch = jest.fn();
   });
 
   it('should redirect when no token is provided', async () => {
-    await DeleteAccountPage({ searchParams: {} });
-    expect(redirect).toHaveBeenCalledWith(
-      '/error?message=Missing cancellation token'
-    );
+    render(<DeleteAccountPage searchParams={{}} />);
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith(
+        '/error?message=Missing cancellation token'
+      );
+    });
   });
 
   it('should redirect to success page on successful deletion', async () => {
@@ -56,37 +37,34 @@ describe('DeleteAccountPage', () => {
       status: 200
     });
 
-    await DeleteAccountPage({
-      searchParams: { token: 'test-token' }
+    render(<DeleteAccountPage searchParams={{ token: 'test-token' }} />);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/confirm-deletion',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json'
+          }),
+          body: JSON.stringify({ token: 'test-token' })
+        })
+      );
+
+      expect(pushMock).toHaveBeenCalledWith('/delete-confirmed?success=true');
     });
-
-    expect(global.fetch).toHaveBeenCalledWith(
-      'https://example.com/api/confirm-deletion',
-      expect.objectContaining({
-        method: 'POST',
-        headers: expect.objectContaining({
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token'
-        }),
-        body: JSON.stringify({ token: 'test-token' })
-      })
-    );
-
-    expect(redirect).toHaveBeenCalledWith(
-      '/protected/delete-confirmed?success=true'
-    );
   });
 
   it('should redirect to error page when API call fails', async () => {
     (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
 
-    await DeleteAccountPage({
-      searchParams: { token: 'test-token' }
-    });
+    render(<DeleteAccountPage searchParams={{ token: 'test-token' }} />);
 
-    expect(redirect).toHaveBeenCalledWith(
-      '/protected/delete-confirmed?success=false&error=An%20unexpected%20error%20occurred'
-    );
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith(
+        '/delete-confirmed?success=false&error=An%20unexpected%20error%20occurred'
+      );
+    });
   });
 
   it('should redirect to error page when API returns non-200 status', async () => {
@@ -95,12 +73,10 @@ describe('DeleteAccountPage', () => {
       status: 500
     });
 
-    await DeleteAccountPage({
-      searchParams: { token: 'test-token' }
-    });
+    render(<DeleteAccountPage searchParams={{ token: 'test-token' }} />);
 
-    expect(redirect).toHaveBeenCalledWith(
-      '/protected/delete-confirmed?success=false'
-    );
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/delete-confirmed?success=false');
+    });
   });
 });

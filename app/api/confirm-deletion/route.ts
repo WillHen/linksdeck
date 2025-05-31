@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/server';
 
 import type { Database } from '@/app/types/Supabase';
 
@@ -8,19 +8,7 @@ import { deleteUserAndData } from '@/app/api/utils/deleteUsers';
 
 export async function POST(req: Request) {
 
-    const authHeader = req.headers.get('Authorization');
-    const usertoken = authHeader?.split(' ')[1];
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${usertoken}`,
-                },
-            },
-        }
-    );
+    const supabase = await createClient();
 
     const {
         data: { user }, error: userError

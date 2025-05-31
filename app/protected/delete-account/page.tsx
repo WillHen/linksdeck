@@ -1,56 +1,52 @@
-import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+'use client';
 
-import { createClient } from '@/utils/supabase/server';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-interface DeleteAccountPageProps {
-  searchParams: Promise<{ token?: string }>;
-}
-
-export default async function DeleteAccountPage({
+export default function DeleteAccountPage({
   searchParams
-}: DeleteAccountPageProps) {
-  const params = searchParams;
+}: {
+  searchParams: { token?: string };
+}) {
+  const router = useRouter();
 
-  const { token } = await params;
+  useEffect(() => {
+    const deleteAccount = async () => {
+      const { token } = searchParams;
 
-  if (!token) {
-    // Redirect to an error page or home if the token is missing
-    redirect('/error?message=Missing cancellation token');
-  }
-
-  const supabase = await createClient();
-
-  const access_token = await supabase.auth
-    .getSession()
-    .then((res) => res.data.session?.access_token);
-
-  const headersList = headers();
-  const protocol = (await headersList).get('x-forwarded-proto') || 'http';
-  const host = (await headersList).get('host');
-  const baseUrl = `${protocol}://${host}`;
-
-  try {
-    const result = await fetch(`${baseUrl}/api/confirm-deletion`, {
-      method: 'POST',
-      body: JSON.stringify({
-        token
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${access_token}`
+      if (!token) {
+        // Redirect to an error page if the token is missing
+        router.push('/error?message=Missing cancellation token');
+        return;
       }
-    });
 
-    if (result?.status > 200) {
-      redirect('/protected/delete-confirmed?success=false');
-    }
+      try {
+        const response = await fetch('/api/confirm-deletion', {
+          method: 'POST',
+          body: JSON.stringify({ token }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
 
-    redirect('/protected/delete-confirmed?success=true');
-  } catch (err) {
-    console.error('Error calling delete-user API:', err);
-    redirect(
-      '/protected/delete-confirmed?success=false&error=An%20unexpected%20error%20occurred'
-    );
-  }
+        if (response.status > 200) {
+          // Redirect to failure page
+          router.push('/delete-confirmed?success=false');
+        } else {
+          // Redirect to success page
+          router.push('/delete-confirmed?success=true');
+        }
+      } catch (err) {
+        console.error('Error calling delete-user API:', err);
+        // Redirect to failure page with error message
+        router.push(
+          '/delete-confirmed?success=false&error=An%20unexpected%20error%20occurred'
+        );
+      }
+    };
+
+    deleteAccount();
+  }, [searchParams, router]);
+
+  return <p>Processing your request...</p>;
 }
