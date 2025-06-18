@@ -23,7 +23,6 @@ export default function ChangeEmailClient() {
 
     // Validate email format
     if (!emailRegex.test(email)) {
-      console.log('Email validation failed');
       setError('Invalid email address');
       setLoading(false);
       return;
