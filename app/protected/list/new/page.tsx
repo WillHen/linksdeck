@@ -28,7 +28,7 @@ export default function AddListPage() {
           setUserId(user.id);
         }
       } catch (error) {
-        console.error('Error checking user:', error);
+        console.error('Error finding user:', error);
         router.push('/sign-in');
       }
     };
@@ -59,7 +59,6 @@ export default function AddListPage() {
 
       const { list } = await listResponse.json();
 
-      // Then create the links
       if (values.links.length > 0) {
         const response = await fetch('/api/links', {
           method: 'POST',
