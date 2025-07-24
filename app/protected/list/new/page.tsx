@@ -54,7 +54,7 @@ export default function AddListPage() {
       });
 
       if (!listResponse.ok) {
-        throw new Error('Failed to create list');
+        throw new Error(`Failed to create list ${values.title}`);
       }
 
       const { list } = await listResponse.json();
