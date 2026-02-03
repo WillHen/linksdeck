@@ -42,7 +42,6 @@ export const updateSession = async (request: NextRequest) => {
     // This needs to happen BEFORE checking user session
     const code = request.nextUrl.searchParams.get("code");
     if (code && request.nextUrl.pathname === "/") {
-      const type = request.nextUrl.searchParams.get("type");
 
       // Build the callback URL preserving ALL query parameters (especially code_verifier for PKCE)
       const callbackUrl = new URL("/auth/callback", request.url);
@@ -52,15 +51,10 @@ export const updateSession = async (request: NextRequest) => {
         callbackUrl.searchParams.set(key, value);
       });
 
-      // Add redirect_to for password recovery if not already present
-      // Default to reset-password for recovery type, or if no redirect is specified
+      // Always add redirect_to for password recovery if not already present
+      // This handles cases where type=recovery might not be in the URL
       if (!callbackUrl.searchParams.has("redirect_to")) {
-        if (type === "recovery") {
-          callbackUrl.searchParams.set("redirect_to", "/protected/reset-password");
-        }
-        // If no type is specified but we're coming from homepage with code,
-        // it's likely a password reset (most common flow)
-        // Signup confirmation emails typically go directly to callback
+        callbackUrl.searchParams.set("redirect_to", "/protected/reset-password");
       }
 
       return NextResponse.redirect(callbackUrl);
