@@ -37,6 +37,29 @@ export const updateSession = async (request: NextRequest) => {
 
     // This will refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
+    
+    // If there's a code parameter (from auth emails), redirect to callback to exchange it
+    // This needs to happen BEFORE checking user session
+    const code = request.nextUrl.searchParams.get("code");
+    if (code && request.nextUrl.pathname === "/") {
+      const type = request.nextUrl.searchParams.get("type");
+      
+      // Build the callback URL preserving ALL query parameters (especially code_verifier for PKCE)
+      const callbackUrl = new URL("/auth/callback", request.url);
+      
+      // Copy all existing query parameters
+      request.nextUrl.searchParams.forEach((value, key) => {
+        callbackUrl.searchParams.set(key, value);
+      });
+      
+      // Add redirect_to for password recovery if not already present
+      if (type === "recovery" && !callbackUrl.searchParams.has("redirect_to")) {
+        callbackUrl.searchParams.set("redirect_to", "/protected/reset-password");
+      }
+
+      return NextResponse.redirect(callbackUrl);
+    }
+
     const user = await supabase.auth.getUser();
 
     // protected routes

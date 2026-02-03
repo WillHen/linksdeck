@@ -12,7 +12,16 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (error) {
+      console.error("Error exchanging code for session:", error.message, error);
+      // If code exchange fails, redirect to forgot password to request new link
+      return NextResponse.redirect(
+        `${origin}/forgot-password?error=${encodeURIComponent("Reset link expired or invalid. Please request a new one.")}`
+      );
+    }
+
   }
 
   if (redirectTo) {
