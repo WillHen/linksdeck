@@ -53,8 +53,14 @@ export const updateSession = async (request: NextRequest) => {
       });
 
       // Add redirect_to for password recovery if not already present
-      if (type === "recovery" && !callbackUrl.searchParams.has("redirect_to")) {
-        callbackUrl.searchParams.set("redirect_to", "/protected/reset-password");
+      // Default to reset-password for recovery type, or if no redirect is specified
+      if (!callbackUrl.searchParams.has("redirect_to")) {
+        if (type === "recovery") {
+          callbackUrl.searchParams.set("redirect_to", "/protected/reset-password");
+        }
+        // If no type is specified but we're coming from homepage with code,
+        // it's likely a password reset (most common flow)
+        // Signup confirmation emails typically go directly to callback
       }
 
       return NextResponse.redirect(callbackUrl);
