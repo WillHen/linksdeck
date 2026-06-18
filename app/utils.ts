@@ -2,25 +2,19 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/app/types/Supabase';
 
-import { GenericSchema } from '@supabase/postgrest-js/src/types';
-
-export function getListsFromSupabaseAnon(supabaseClient: SupabaseClient<Database, 'public' extends keyof Database ? 'public' : string & keyof Database,
-    Database['public'] extends GenericSchema ? Database['public'] : unknown>) {
+export function getListsFromSupabaseAnon(supabaseClient: SupabaseClient<Database>) {
     return supabaseClient.from('lists').select('*');
 }
 
-export function getLinksFromSupabaseAnon(supabaseClient: SupabaseClient<Database, 'public' extends keyof Database ? 'public' : string & keyof Database,
-    Database['public'] extends GenericSchema ? Database['public'] : unknown>) {
+export function getLinksFromSupabaseAnon(supabaseClient: SupabaseClient<Database>) {
     return supabaseClient.from('links').select('*');
 }
 
-export function getListsFromSupabase(supabaseClient: SupabaseClient<Database, 'public' extends keyof Database ? 'public' : string & keyof Database,
-    Database['public'] extends GenericSchema ? Database['public'] : unknown>, userId: string) {
+export function getListsFromSupabase(supabaseClient: SupabaseClient<Database>, userId: string) {
     return supabaseClient.from('lists').select('*').eq('user_id', userId);
 }
 
-export function getLinksFromSupabase(supabaseClient: SupabaseClient<Database, 'public' extends keyof Database ? 'public' : string & keyof Database,
-    Database['public'] extends GenericSchema ? Database['public'] : unknown>, userId: string) {
+export function getLinksFromSupabase(supabaseClient: SupabaseClient<Database>, userId: string) {
     return supabaseClient.from('links').select('*').eq('user_id', userId);
 }
 
