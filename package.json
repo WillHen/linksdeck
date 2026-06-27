@@ -2,6 +2,8 @@
   "private": true,
   "scripts": {
     "test-server": "dotenv -e .env.test --override -- next dev",
+    "test-build": "dotenv -e .env.test --override -- next build",
+    "test-start": "dotenv -e .env.test --override -- next start",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

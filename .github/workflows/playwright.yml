@@ -40,12 +40,18 @@ jobs:
       - name: Seed data
         run: node supabase/seedUser.js
 
+      - name: Build app
+        run: npm run test-build
+
       - name: Start test server
-        run: npm run test-server &
+        run: npm run test-start &
 
       - name: Run e2e Playwright tests
         run: |
           npx playwright install --with-deps
+          # Wait for the production server to accept connections before testing,
+          # so the first navigation doesn't race startup.
+          timeout 60 bash -c 'until curl -sf -o /dev/null http://localhost:3000; do sleep 1; done'
           npx playwright test
 
       - uses: actions/upload-artifact@v4
