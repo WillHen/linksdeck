@@ -13,7 +13,7 @@ test.use({
 test.describe('Create and Edit Lists', () => {
 
   test('Create List', async ({ page }) => {
-    await page.goto('http://localhost:3000');
+    await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
 
     const listContainer = await page.locator('[data-testid="create-list-link"]');
     listContainer.click();
@@ -68,7 +68,7 @@ test.describe('Create and Edit Lists', () => {
   });
 
   test('Edit List', async ({ page }) => {
-    await page.goto('http://localhost:3000');
+    await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
 
     const listEditLink = await page.locator('[data-testid="edit-list-0"]');
     listEditLink.click();

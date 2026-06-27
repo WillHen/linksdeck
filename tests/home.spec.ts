@@ -11,7 +11,7 @@ test.use({
 
 
 test('test', async ({ page }) => {
-  await page.goto('http://localhost:3000');
+  await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
 
   const yourListsHeader = await page.locator('[data-testid="your-lists-header"]');
 
