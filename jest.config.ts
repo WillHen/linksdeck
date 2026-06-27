@@ -42,8 +42,20 @@ const esmPackages = [
 
 export default async () => {
   const resolved = await jestConfig();
-  resolved.transformIgnorePatterns = resolved.transformIgnorePatterns?.map((p) =>
-    p.replace('(?!(geist|', `(?!(geist|${esmPackages.join('|')}|`)
-  );
+  let injected = false;
+  resolved.transformIgnorePatterns = resolved.transformIgnorePatterns?.map((p) => {
+    const next = p.replace('(?!(geist|', `(?!(geist|${esmPackages.join('|')}|`);
+    if (next !== p) injected = true;
+    return next;
+  });
+  // Fail loudly if next/jest reshapes its transformIgnorePatterns and the
+  // anchor above no longer matches — otherwise the ESM deps silently break
+  // again with an opaque "Cannot use import statement outside a module" error.
+  if (!injected) {
+    throw new Error(
+      'jest.config: could not inject MSW ESM packages into next/jest transformIgnorePatterns. ' +
+        'The expected "(?!(geist|" anchor was not found — next/jest likely changed its config shape.'
+    );
+  }
   return resolved;
 };
