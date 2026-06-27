@@ -13,7 +13,7 @@ test.use({
 
 test.describe('List links', async () => {
     test('List Limit', async ({ page }) => {
-        await page.goto('localhost:3000');
+        await page.goto('http://localhost:3000');
         await page.getByTestId('create-list-link').click();
 
         await page.getByTestId('new-list-header').waitFor({ state: 'visible' });
