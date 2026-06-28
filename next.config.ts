@@ -1,17 +1,22 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack']
-    });
-
-    return config;
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js'
+      }
+    }
   },
   images: {
-    domains: ['cdn.usegalileo.ai'], // Add the hostname here
-  },
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.usegalileo.ai'
+      }
+    ]
+  }
   // Add other Next.js config options here if needed
 };
 

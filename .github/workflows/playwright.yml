@@ -31,7 +31,9 @@ jobs:
           api_url=$(echo "$sb_status" | grep -o 'API URL:.*' | awk '{print $3}')
           anon_key=$(echo "$sb_status" | grep -o 'anon key: .*' | awk '{print $3}')
           service_role_key=$(echo "$sb_status" | grep -o 'service_role key: .*' | awk '{print $3}')
-          env_content="NEXT_PUBLIC_SUPABASE_URL=\"$api_url\"\nNEXT_PUBLIC_SUPABASE_ANON_KEY=\"$anon_key\"\nSUPABASE_SERVICE_ROLE_KEY=\"$service_role_key\"\n"
+          # Placeholder RESEND_API_KEY so `next build` can construct the Resend
+          # client at module load (no emails are sent during the build).
+          env_content="NEXT_PUBLIC_SUPABASE_URL=\"$api_url\"\nNEXT_PUBLIC_SUPABASE_ANON_KEY=\"$anon_key\"\nSUPABASE_SERVICE_ROLE_KEY=\"$service_role_key\"\nRESEND_API_KEY=\"re_test_placeholder\"\n"
           echo -e "$env_content" > .env.test
 
       - name: Apply migrations
@@ -40,12 +42,18 @@ jobs:
       - name: Seed data
         run: node supabase/seedUser.js
 
+      - name: Build app
+        run: npm run test-build
+
       - name: Start test server
-        run: npm run test-server &
+        run: npm run test-start &
 
       - name: Run e2e Playwright tests
         run: |
           npx playwright install --with-deps
+          # Wait for the production server to accept connections before testing,
+          # so the first navigation doesn't race startup.
+          timeout 60 bash -c 'until curl -sf -o /dev/null http://localhost:3000; do sleep 1; done'
           npx playwright test
 
       - uses: actions/upload-artifact@v4
