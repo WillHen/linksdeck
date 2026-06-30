@@ -27,14 +27,18 @@ jobs:
         run: |
           touch .env.test
           supabase start
-          sb_status=$(supabase status)
-          api_url=$(echo "$sb_status" | grep -o 'API URL:.*' | awk '{print $3}')
-          anon_key=$(echo "$sb_status" | grep -o 'anon key: .*' | awk '{print $3}')
-          service_role_key=$(echo "$sb_status" | grep -o 'service_role key: .*' | awk '{print $3}')
+          # Generate .env.test from the CLI's machine-readable env output and map
+          # each value to the name the app expects. This avoids parsing the
+          # human-readable `supabase status` table, whose labels/layout change
+          # between CLI versions (the v2 format broke the old grep/awk parsing).
+          supabase status -o env \
+            --override-name api.url=NEXT_PUBLIC_SUPABASE_URL \
+            --override-name auth.anon_key=NEXT_PUBLIC_SUPABASE_ANON_KEY \
+            --override-name auth.service_role_key=SUPABASE_SERVICE_ROLE_KEY \
+            > .env.test
           # Placeholder RESEND_API_KEY so `next build` can construct the Resend
           # client at module load (no emails are sent during the build).
-          env_content="NEXT_PUBLIC_SUPABASE_URL=\"$api_url\"\nNEXT_PUBLIC_SUPABASE_ANON_KEY=\"$anon_key\"\nSUPABASE_SERVICE_ROLE_KEY=\"$service_role_key\"\nRESEND_API_KEY=\"re_test_placeholder\"\n"
-          echo -e "$env_content" > .env.test
+          echo 'RESEND_API_KEY="re_test_placeholder"' >> .env.test
 
       - name: Apply migrations
         run: supabase db reset --local
