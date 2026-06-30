@@ -29,6 +29,9 @@ const jestConfig = createJestConfig(config);
 // into that allowlist instead of appending a new pattern (Jest ignores a file
 // if it matches ANY pattern, so appending wouldn't work).
 const esmPackages = [
+  // uuid is ESM-only from v14 (no CJS build), so it must be transformed
+  // rather than ignored like the rest of node_modules.
+  'uuid',
   'rettime',
   'until-async',
   'outvariant',
