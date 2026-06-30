@@ -94,6 +94,9 @@
   "overrides": {
     "babel-jest": {
       "@babel/core": "$@babel/core"
+    },
+    "ts-jest": {
+      "@babel/core": "$@babel/core"
     }
   }
 }
