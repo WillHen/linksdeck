@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* Keep using the existing JS config (theme tokens, darkMode, plugins) under
+   Tailwind v4's CSS-first setup. */
+@config '../tailwind.config.ts';
 
 @layer base {
   :root {
