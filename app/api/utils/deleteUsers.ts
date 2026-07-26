@@ -41,6 +41,6 @@ export async function deleteUserAndData(userId: string) {
         console.log(`User with ID ${userId} and all related data deleted successfully`);
     } catch (error) {
         console.error('Error deleting user and data:', error);
-        throw new Error('Failed to delete user and data');
+        throw new Error('Failed to delete user and data', { cause: error });
     }
 }
