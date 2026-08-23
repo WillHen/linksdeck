@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { Formik } from 'formik';
+import { Formik, type FormikValues } from 'formik';
 import { LinkDetails } from './LinkDetails';
 
 const mockOnChange = jest.fn();
@@ -27,7 +27,7 @@ const defaultProps = {
   onDeleteLink: mockOnDeleteLink
 };
 
-const renderWithFormik = (ui, initialValues) => {
+const renderWithFormik = (ui: React.ReactNode, initialValues: FormikValues) => {
   return render(
     <Formik
       initialValues={initialValues}
