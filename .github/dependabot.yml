@@ -9,6 +9,14 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     versioning-strategy: increase
+    ignore:
+      # typescript-eslint refuses to load against TypeScript 7 ("typescript-eslint
+      # does not support TS 7.0"), so a TS major bump takes `npm run lint` down.
+      # Upstream support is blocked on ESLint gaining async parser support:
+      # https://github.com/typescript-eslint/typescript-eslint/issues/10940
+      # Drop this entry once typescript-eslint ships TS 7 support.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependencies"
     groups:
