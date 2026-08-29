@@ -12,7 +12,8 @@ export default function ChangeEmailClient() {
   const handleEmailChange = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const email = formData.get('email') as string;
     setLoading(true);
     setError(null);
@@ -33,6 +34,7 @@ export default function ChangeEmailClient() {
 
       if (response.ok) {
         setSuccess('Email updated successfully');
+        form.reset();
         toast.success(
           'Email updated successfully! Please check your inbox to confirm.',
           { duration: 6000, className: 'toast-success' }

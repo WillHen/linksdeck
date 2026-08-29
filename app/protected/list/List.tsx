@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React from 'react';
 
 /**
- * Replaces the old 72px-tall ListSegment row with a scannable card.
+ * Replaces the old 72px-tall list row layout with a scannable card.
  * data-testid values are unchanged so the Playwright specs keep passing.
  */
 export function ListCard({
