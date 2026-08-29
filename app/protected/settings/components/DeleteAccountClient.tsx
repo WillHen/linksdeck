@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Button } from '@/components/ui/button';
 
 export default function DeleteAccountClient() {
   const [loading, setLoading] = useState(false);
@@ -14,9 +13,7 @@ export default function DeleteAccountClient() {
     try {
       const response = await fetch('/api/start-cancellation', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (response.ok) {
@@ -28,10 +25,7 @@ export default function DeleteAccountClient() {
         const error = await response.json();
         toast.error(
           error.message || 'Failed to send the delete account link.',
-          {
-            duration: 6000,
-            className: 'toast-error'
-          }
+          { duration: 6000, className: 'toast-error' }
         );
       }
     } catch (err) {
@@ -46,17 +40,21 @@ export default function DeleteAccountClient() {
   };
 
   return (
-    <div className='p-6 border rounded-lg shadow-md bg-red-50'>
-      <h2 className='text-xl font-semibold text-red-600 mb-4'>
+    <div className='flex flex-col items-start gap-3.5 p-[26px] rounded-[18px] bg-[var(--ld-danger-soft)] border-2 border-[var(--ld-danger-line)] shadow-[6px_6px_0_var(--ld-danger-line)]'>
+      <span className='text-[18px] font-semibold leading-[1.2] text-[var(--ld-danger-ink)]'>
         Delete Account
-      </h2>
-      <p className='text-sm text-red-600 mb-4'>
+      </span>
+      <p className='max-w-[520px] text-[15px] leading-[1.45] text-[var(--ld-danger-ink)]'>
         Warning: Deleting your account is permanent and cannot be undone.
       </p>
       <form onSubmit={handleDeleteAccount}>
-        <Button type='submit' variant='destructive' disabled={loading}>
+        <button
+          type='submit'
+          disabled={loading}
+          className='ld-btn border-[var(--ld-danger-ink)] bg-[var(--ld-danger)] text-white disabled:opacity-60'
+        >
           {loading ? 'Sending...' : 'Delete Account'}
-        </Button>
+        </button>
       </form>
     </div>
   );

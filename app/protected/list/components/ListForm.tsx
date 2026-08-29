@@ -71,13 +71,13 @@ export function ListForm({
   }
 
   return (
-    <div className='w-full lg:max-w-[1200px] mx-auto p-8 bg-white shadow-md rounded-lg'>
-      <div className='flex justify-between items-center mb-8'>
+    <div className='w-full max-w-[760px] mx-auto flex flex-col gap-7'>
+      {/* Header */}
+      <div className='flex justify-between items-center gap-6'>
         <h1
-          className='text-3xl font-bold mb-8 text-gray-800'
+          className='text-[34px] sm:text-[42px] font-bold leading-[1.02] tracking-[-0.03em] text-[var(--ld-ink)]'
           data-testid={
-            (saveAction === SaveAction.Create ? 'new-' : 'edit-') +
-            'list-header'
+            (saveAction === SaveAction.Create ? 'new-' : 'edit-') + 'list-header'
           }
         >
           {title}
@@ -86,13 +86,14 @@ export function ListForm({
           <button
             type='button'
             onClick={deleteList}
-            className='text-red-600 hover:text-red-800 transition'
+            className='ld-btn ld-btn-danger h-10 text-sm'
             data-testid='delete-list-button'
           >
             Delete List
           </button>
         )}
       </div>
+
       <Formik
         validationSchema={validationSchema}
         initialValues={initialValues}
@@ -111,14 +112,12 @@ export function ListForm({
           }
         }}
       >
-        {({ values, setFieldValue }) => {
-          return (
-            <Form>
-              <div className='mb-8'>
-                <label
-                  htmlFor='title'
-                  className='block text-lg font-medium text-gray-700 mb-2'
-                >
+        {({ values, setFieldValue }) => (
+          <Form className='flex flex-col gap-7'>
+            {/* List meta card */}
+            <div className='ld-card flex flex-col gap-[22px] p-7'>
+              <div className='flex flex-col gap-2'>
+                <label htmlFor='title' className='ld-label'>
                   List Title
                 </label>
                 <Field
@@ -127,20 +126,17 @@ export function ListForm({
                   type='text'
                   placeholder='Enter list title'
                   data-testid='list-title-input'
-                  className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  className='ld-input font-semibold'
                 />
                 <ErrorMessage
                   name='title'
                   component='div'
-                  className='text-red-500 text-sm mt-1'
+                  className='text-[13px] text-[var(--ld-danger-ink)]'
                 />
               </div>
 
-              <div className='mb-8'>
-                <label
-                  htmlFor='description'
-                  className='block text-lg font-medium text-gray-700 mb-2'
-                >
+              <div className='flex flex-col gap-2'>
+                <label htmlFor='description' className='ld-label'>
                   List Description
                 </label>
                 <Field
@@ -149,92 +145,95 @@ export function ListForm({
                   type='text'
                   placeholder='Enter list description'
                   data-testid='list-description-input'
-                  className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  className='ld-input'
                 />
               </div>
+            </div>
 
-              <div className='mb-8'>
-                <h2 className='text-xl font-medium text-gray-700 mb-4'>
+            {/* Links */}
+            <div className='flex flex-col gap-4'>
+              <div className='flex justify-between items-baseline'>
+                <h2 className='text-[22px] font-semibold text-[var(--ld-ink)]'>
                   Links
                 </h2>
-                <FieldArray name='links' validateOnChange={false}>
-                  {({ push, remove }) => (
-                    <div>
-                      {values.links.map((link, index) => (
-                        <LinkDetails
-                          key={index}
-                          linkIndex={index}
-                          title={link.title}
-                          url={link.url}
-                          id={link.id}
-                          new_id={link.new_id}
-                          onChange={(index, value, id, new_id) => {
-                            if (id) {
-                              setFieldValue(`links[${index}]`, {
-                                id,
-                                ...value
-                              });
-                            } else if (new_id) {
-                              setFieldValue(`links[${index}]`, {
-                                new_id,
-                                ...value
-                              });
-                            } else {
-                              setFieldValue(`links[${index}]`, {
-                                new_id: uuidv4(),
-                                ...value
-                              });
-                            }
-                          }}
-                          onDeleteLink={(index) => {
-                            remove(index);
-                            if (link.id) {
-                              const id = link.id as string;
-                              setLinksToDelete((prev) => [...prev, id]);
-                            }
-                          }}
-                        />
-                      ))}
-                      <button
-                        type='button'
-                        data-testid='add-link-button'
-                        className='w-full py-3 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition mt-4'
-                        onClick={() => {
-                          push({ title: '', url: '', new_id: uuidv4() });
-                        }}
-                        disabled={values.links.length >= 10}
-                      >
-                        Add Link
-                      </button>
-                      {values.links.length >= 10 && (
-                        <p
-                          data-testid='link-limit-error'
-                          className='text-red-500 text-sm mt-2'
-                        >
-                          You can only add a maximum of 10 links.
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </FieldArray>
+                <span className='ld-mono text-[13px] text-[var(--ld-muted)]'>
+                  {values.links.length} of 10
+                </span>
               </div>
 
-              {/* Submit Button */}
+              <FieldArray name='links' validateOnChange={false}>
+                {({ push, remove }) => (
+                  <div className='flex flex-col gap-4'>
+                    {values.links.map((link, index) => (
+                      <LinkDetails
+                        key={index}
+                        linkIndex={index}
+                        title={link.title}
+                        url={link.url}
+                        id={link.id}
+                        new_id={link.new_id}
+                        onChange={(index, value, id, new_id) => {
+                          if (id) {
+                            setFieldValue(`links[${index}]`, { id, ...value });
+                          } else if (new_id) {
+                            setFieldValue(`links[${index}]`, {
+                              new_id,
+                              ...value
+                            });
+                          } else {
+                            setFieldValue(`links[${index}]`, {
+                              new_id: uuidv4(),
+                              ...value
+                            });
+                          }
+                        }}
+                        onDeleteLink={(index) => {
+                          remove(index);
+                          if (link.id) {
+                            const id = link.id as string;
+                            setLinksToDelete((prev) => [...prev, id]);
+                          }
+                        }}
+                      />
+                    ))}
+
+                    <button
+                      type='button'
+                      data-testid='add-link-button'
+                      className='h-[52px] flex items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-[var(--ld-dashed)] bg-white/60 text-base font-semibold text-[var(--ld-ink)] hover:bg-white disabled:opacity-50 transition-colors'
+                      onClick={() => push({ title: '', url: '', new_id: uuidv4() })}
+                      disabled={values.links.length >= 10}
+                    >
+                      <span aria-hidden='true'>+</span>
+                      <span>Add Link</span>
+                    </button>
+
+                    {values.links.length >= 10 && (
+                      <p
+                        data-testid='link-limit-error'
+                        className='ld-mono text-[13px] text-[var(--ld-danger-ink)]'
+                      >
+                        You can only add a maximum of 10 links.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </FieldArray>
+            </div>
+
+            {/* Actions */}
+            <div className='flex gap-3 items-center pt-1'>
               <button
                 data-testid={`${saveAction}-list-button`}
                 type='submit'
-                className={`w-full py-4 px-4 text-white font-bold rounded-lg ${
-                  isEqual(initialValues, values)
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-500 hover:bg-blue-600 transition'
-                }`}
                 disabled={isEqual(initialValues, values)}
+                className='ld-btn ld-btn-primary flex-1 h-14 text-[18px] disabled:bg-[var(--ld-line)] disabled:text-[var(--ld-faint)] disabled:shadow-none disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0'
               >
                 {saveAction === SaveAction.Create ? 'Create' : 'Update'} List
               </button>
-            </Form>
-          );
-        }}
+            </div>
+          </Form>
+        )}
       </Formik>
     </div>
   );

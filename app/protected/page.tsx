@@ -1,11 +1,9 @@
 import { createClient } from '@/utils/supabase/server';
-import Image from 'next/image';
 import { getListsFromSupabase } from '@/app/utils';
-
 import Link from 'next/link';
-
-import { ListSegment } from './list/List';
 import { redirect } from 'next/navigation';
+
+import { ListCard } from './list/List';
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -20,61 +18,84 @@ export default async function ProtectedPage() {
 
   const { data: lists } = await getListsFromSupabase(supabase, user.id);
 
+  const listCount = lists?.length ?? 0;
+  const linkTotal =
+    lists?.reduce((sum, l) => sum + ((l.link_count as number) ?? 0), 0) ?? 0;
+
   return (
-    <div className='flex-1 w-full flex flex-col gap-4 flex-wrap py-4 sm:py-6 sm:px-6 md:py-8 md:px-12 max-w-[320px] sm:max-w-[700px] lg:max-w-[1000px] xl:max-w-[1200px] mx-auto'>
-      <div className='relative w-full flex min-h-[400px] md:min-h-[500px] flex-col gap-4 bg-cover bg-center bg-no-repeat sm:gap-6 md:gap-8 rounded-lg items-center justify-center p-4'>
-        <Image
-          src='/assets/linksdeckbackground3.png'
-          alt='Background'
-          fill
-          priority
-          quality={75}
-          sizes='100vw'
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-          className='z-[-1]' // Ensures the image is behind the content
-        />
-        <div className='flex flex-col gap-2 text-center'>
-          <h1 className='text-white text-2xl font-bold leading-tight tracking-[-0.02em] sm:text-3xl md:text-4xl'>
-            Welcome to LinksDeck
+    <div className='flex flex-col gap-9'>
+      {/* Header */}
+      <div className='flex flex-col sm:flex-row justify-between sm:items-end gap-6 pb-7 border-b-2 border-[var(--ld-ink)]'>
+        <div className='flex flex-col gap-2.5'>
+          <h1
+            data-testid='your-lists-header'
+            className='text-[36px] sm:text-[46px] font-bold leading-[1.02] tracking-[-0.03em] text-[var(--ld-ink)]'
+          >
+            Your Lists
           </h1>
-          <h2 className='text-white text-sm font-normal leading-snug sm:text-base md:text-lg'>
-            Organize your links into lists that you can share and explore. Start
-            by creating your first list.
-          </h2>
+          <p className='ld-mono text-[15px] sm:text-base text-[var(--ld-muted)]'>
+            {listCount} {listCount === 1 ? 'list' : 'lists'} &middot; {linkTotal}{' '}
+            {linkTotal === 1 ? 'link' : 'links'} saved
+          </p>
         </div>
         <Link
           href='/protected/list/new'
-          className='flex items-center gap-2 text-blue-500 hover:underline'
           data-testid='create-list-link'
+          className='ld-btn ld-btn-primary h-[52px] px-6 text-[17px] self-start sm:self-auto'
         >
-          <button className='flex w-full max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 sm:h-12 sm:px-5 bg-[#1565c0] text-white text-sm font-bold leading-normal tracking-[0.01em] sm:text-base'>
-            <span className='truncate'>Create new list</span>
-          </button>
+          Create new list
         </Link>
       </div>
-      <div className='flex flex-col gap-2 items-start'>
-        <h2
-          data-testid='your-lists-header'
-          className='font-bold text-lg mb-4 sm:text-xl'
+
+      {/* Grid of lists */}
+      {listCount > 0 ? (
+        <div
+          data-testid='list-container'
+          className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
         >
-          Your Lists
-        </h2>
-        {lists && lists.length > 0 ? (
-          <div className='w-full' data-testid='list-container'>
-            {lists.map((list, index) => (
-              <ListSegment
-                key={list.id}
-                index={index}
-                listId={list.id}
-                title={list.title as string}
-                linkCount={list.link_count as number}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className='text-sm text-gray-600'>No lists available.</p>
-        )}
-      </div>
+          {lists!.map((list, index) => (
+            <ListCard
+              key={list.id}
+              index={index}
+              listId={list.id}
+              title={list.title as string}
+              description={list.description as string | null}
+              linkCount={list.link_count as number}
+            />
+          ))}
+          <Link
+            href='/protected/list/new'
+            className='flex flex-col items-center justify-center gap-3 min-h-[290px] p-6 rounded-[18px] border-2 border-dashed border-[var(--ld-dashed)] bg-white/50 hover:bg-white transition-colors'
+          >
+            <span className='w-10 h-10 rounded-xl border-2 border-[var(--ld-ink)] bg-[var(--ld-accent-soft)] flex items-center justify-center text-[22px] font-semibold'>
+              +
+            </span>
+            <span className='text-[17px] font-semibold'>Create new list</span>
+            <span className='ld-mono text-[13px] text-[var(--ld-muted)]'>
+              up to 10 links each
+            </span>
+          </Link>
+        </div>
+      ) : (
+        /* Empty / first-run state */
+        <div className='ld-card flex flex-col items-start gap-4 p-8 sm:p-10 max-w-[620px]'>
+          <span className='ld-chip'>no lists yet</span>
+          <h2 className='text-[28px] sm:text-[32px] font-bold tracking-[-0.02em]'>
+            Start your first deck
+          </h2>
+          <p className='text-[17px] leading-[1.5] text-[var(--ld-body)]'>
+            Organize your links into lists that you can share and explore. Start
+            by creating your first list.
+          </p>
+          <Link
+            href='/protected/list/new'
+            data-testid='create-list-link-empty'
+            className='ld-btn ld-btn-primary h-[52px] px-6 text-[17px] mt-1'
+          >
+            Create new list
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

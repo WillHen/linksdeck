@@ -1,9 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-
 import Link from 'next/link';
-
 import type { Database } from '@/app/types/Supabase';
-
 import {
   getListsFromSupabaseAnon,
   getLinksFromSupabaseAnon
@@ -57,39 +54,48 @@ export default async function ViewListPage({
   }
 
   return (
-    <div className='flex flex-col items-center min-h-screen px-4 py-8'>
-      <div className='max-w-[960px] w-full flex flex-col items-center gap-6'>
-        <div className='flex flex-col items-center gap-4'>
-          <div className='w-full text-center'>
-            <p
-              data-testid='view-list-header'
-              className='text-[#121417] text-[32px] font-bold leading-10'
-            >
-              {title}
-            </p>
-          </div>
-          <div className='w-full text-center'>
-            <p className='text-[#61788A] text-sm leading-[21px]'>
-              {description}
-            </p>
-          </div>
-        </div>
-        <div className='w-full min-w-[370px] sm:max-w-[450px] max-w-[10px] flex flex-col gap-4 mx-auto'>
-          {linksData.map((link, index) => (
-            <Link key={index} href={link.url} target='_blank'>
-              <div className='min-h-[72px] flex justify-between items-center gap-4 py-2 px-4 bg-[#FFFFFF] shadow-md rounded-lg'>
-                <div className='flex flex-col sm: max-w-[420px] max-w-[340px]'>
-                  <p className='text-[#121417] font-medium text-lg leading-7'>
-                    {link.title}
-                  </p>
-                  <p className='text-[#61788A] text-base leading-6 break-all'>
-                    {truncateText(link.url, 50)}
-                  </p>
-                </div>
+    <div className='w-full max-w-[640px] mx-auto flex flex-col gap-9 py-6 sm:py-10'>
+      <div className='flex flex-col items-start gap-3.5'>
+        <span className='ld-mono text-[13px] uppercase tracking-[0.06em] text-[var(--ld-muted)]'>
+          a linksdeck list
+        </span>
+        <h1
+          data-testid='view-list-header'
+          className='text-[40px] sm:text-[56px] font-bold leading-[1] tracking-[-0.035em] text-[var(--ld-ink)]'
+        >
+          {title}
+        </h1>
+        {description ? (
+          <p className='text-[18px] sm:text-[19px] leading-[1.45] text-[var(--ld-body)]'>
+            {description}
+          </p>
+        ) : null}
+      </div>
+
+      <div className='flex flex-col gap-3.5'>
+        {linksData.map((link, index) => (
+          <Link key={link.id ?? index} href={link.url} target='_blank'>
+            <div className='flex items-center gap-4 sm:gap-[18px] px-5 sm:px-6 py-[22px] bg-white border-2 border-[var(--ld-ink)] rounded-2xl shadow-[5px_5px_0_var(--ld-ink)] hover:shadow-[7px_7px_0_var(--ld-accent)] transition-shadow'>
+              <span className='ld-mono text-sm font-medium text-[var(--ld-faint)]'>
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <div className='flex flex-col gap-1.5 flex-1 min-w-0'>
+                <span className='text-[19px] sm:text-[21px] font-semibold leading-[1.2] text-[var(--ld-ink)]'>
+                  {link.title}
+                </span>
+                <span className='ld-mono text-sm leading-[1.3] text-[var(--ld-muted)] break-all'>
+                  {truncateText(link.url, 50)}
+                </span>
               </div>
-            </Link>
-          ))}
-        </div>
+              <span
+                aria-hidden
+                className='shrink-0 w-9 h-9 rounded-[10px] border-2 border-[var(--ld-ink)] bg-[var(--ld-accent-soft)] flex items-center justify-center text-base font-semibold'
+              >
+                &#8599;
+              </span>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

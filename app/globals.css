@@ -6,7 +6,27 @@
 
 @layer base {
   :root {
-    --background: #2596be;
+    /* ---- LinksDeck redesign tokens ---- */
+    --ld-ink: #14181c;
+    --ld-paper: #f5f7fa;
+    --ld-surface: #ffffff;
+    --ld-body: #4a5561;
+    --ld-muted: #5c6672;
+    --ld-faint: #98a3ae;
+    --ld-line: #eef1f5;
+    --ld-dashed: #a3adb8;
+
+    --ld-accent: oklch(0.62 0.19 145);
+    --ld-accent-soft: oklch(0.94 0.05 145);
+    --ld-accent-ink: #0b1a10;
+
+    --ld-danger: oklch(0.62 0.19 25);
+    --ld-danger-line: oklch(0.55 0.19 25);
+    --ld-danger-ink: oklch(0.45 0.19 25);
+    --ld-danger-soft: oklch(0.96 0.03 25);
+
+    /* shadcn tokens kept for existing ui/* components */
+    --background: #f5f7fa;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
@@ -25,39 +45,7 @@
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-  }
-
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --radius: 0.75rem;
   }
 }
 
@@ -67,16 +55,105 @@ html {
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground;
+    background: var(--ld-paper);
+    color: var(--ld-ink);
+    font-family: var(--font-display), system-ui, sans-serif;
   }
+  a {
+    color: var(--ld-ink);
+    text-decoration: none;
+  }
+  a:hover {
+    color: oklch(0.55 0.17 145);
+  }
+}
 
-  @layer utilities {
-    .bg-custom-background {
-      background-color: #2596be; /* Change this to your desired background color */
-    }
+@layer components {
+  /* The four repeating shapes of the redesign. */
+  .ld-card {
+    background: var(--ld-surface);
+    border: 2px solid var(--ld-ink);
+    border-radius: 18px;
+    box-shadow: 6px 6px 0 var(--ld-ink);
+  }
+  .ld-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 20px;
+    border: 2px solid var(--ld-ink);
+    border-radius: 10px;
+    background: var(--ld-surface);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ld-ink);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+  .ld-btn:hover {
+    box-shadow: 3px 3px 0 var(--ld-ink);
+    transform: translate(-1px, -1px);
+  }
+  .ld-btn-primary {
+    background: var(--ld-accent);
+    color: var(--ld-accent-ink);
+    box-shadow: 4px 4px 0 var(--ld-ink);
+  }
+  .ld-btn-primary:hover {
+    box-shadow: 6px 6px 0 var(--ld-ink);
+    transform: translate(-2px, -2px);
+  }
+  .ld-btn-ink {
+    background: var(--ld-ink);
+    color: var(--ld-paper);
+  }
+  .ld-btn-danger {
+    border-color: var(--ld-danger-line);
+    background: var(--ld-danger-soft);
+    color: var(--ld-danger-ink);
+  }
+  .ld-btn-danger:hover {
+    box-shadow: 3px 3px 0 var(--ld-danger-line);
+  }
+  .ld-input {
+    height: 52px;
+    width: 100%;
+    border: 2px solid var(--ld-ink);
+    border-radius: 12px;
+    background: var(--ld-paper);
+    padding: 0 16px;
+    font-size: 17px;
+    color: var(--ld-ink);
+    outline: none;
+  }
+  .ld-input:focus {
+    box-shadow: 3px 3px 0 var(--ld-accent);
+  }
+  .ld-input-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 15px;
+  }
+  .ld-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ld-ink);
+  }
+  .ld-chip {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ld-ink);
+    background: var(--ld-accent-soft);
+    border: 2px solid var(--ld-ink);
+    border-radius: 6px;
+    padding: 5px 8px;
+    white-space: nowrap;
+  }
+  .ld-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
   }
 }

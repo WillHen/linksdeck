@@ -1,64 +1,61 @@
 import Link from 'next/link';
 import React from 'react';
-export function ListSegment({
+
+/**
+ * Replaces the old 72px-tall ListSegment row with a scannable card.
+ * data-testid values are unchanged so the Playwright specs keep passing.
+ */
+export function ListCard({
   title,
+  description,
   listId,
   index,
   linkCount
 }: Readonly<{
   title: string;
+  description?: string | null;
   listId: string;
   index: number;
   linkCount: number;
 }>) {
   return (
-    <div className='min-h-[72px] flex self-stretch items-center flex-row md:gap-4 py-2 md:px-4 mg:px-4 bg-[#FFFFFF] h-[72px]'>
-      <div className='flex justify-center items-start flex-col'>
-        <div className='flex justify-start items-start flex-col'>
-          <span className='text-[#121417] font-medium leading-6'>{title}</span>
-        </div>
-        <div
-          className='flex justify-start items-start flex-col w-[138px]'
-          style={{ width: '138px' }}
-        >
-          <p className='self-stretch text-[#637587] text-sm leading-[21px]'>
-            {linkCount} links
-          </p>
-        </div>
+    <div className='ld-card flex flex-col gap-[18px] p-6 min-h-[290px]'>
+      <div className='flex justify-between items-start gap-3'>
+        <span className='text-[24px] font-semibold leading-[1.15] tracking-[-0.01em] text-[var(--ld-ink)]'>
+          {title}
+        </span>
+        <span className='ld-chip'>
+          {linkCount} {linkCount === 1 ? 'link' : 'links'}
+        </span>
       </div>
-      <div className='flex flex-row gap-2 ml-auto'>
-        <Link data-testid={`view-list-${index}`} href={`list/view/${listId}`}>
-          <div className='flex justify-start items-start flex-col'>
-            <div
-              className='min-w-[84px] max-w-[480px] flex justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl w-[84px] h-[32px]'
-              style={{ width: '84px' }}
-            >
-              <div className='flex justify-start items-center flex-col'>
-                <span className='text-[#121417] text-sm text-center font-medium leading-[21px]'>
-                  View
-                </span>
-              </div>
-            </div>
-          </div>
+
+      {description ? (
+        <p className='text-[15px] leading-[1.45] text-[var(--ld-body)]'>
+          {description}
+        </p>
+      ) : null}
+
+      <div className='flex-1' />
+
+      <div className='flex gap-2.5 pt-1.5 border-t-2 border-[var(--ld-line)]'>
+        <Link
+          data-testid={`view-list-${index}`}
+          href={`list/view/${listId}`}
+          className='ld-btn ld-btn-ink flex-1 h-10'
+        >
+          View
         </Link>
         <Link
           data-testid={`edit-list-${index}`}
           href={`protected/list/edit/${listId}`}
+          className='ld-btn flex-1 h-10'
         >
-          <div className='flex justify-start items-start flex-col'>
-            <div
-              className='min-w-[84px] max-w-[480px] flex justify-center items-center flex-row px-4 bg-[#F0F2F5] rounded-xl w-[84px] h-[32px]'
-              style={{ width: '84px' }}
-            >
-              <div className='flex justify-start items-center flex-col'>
-                <span className='text-[#121417] text-sm text-center font-medium leading-[21px]'>
-                  Edit
-                </span>
-              </div>
-            </div>
-          </div>
+          Edit
         </Link>
       </div>
     </div>
   );
 }
+
+/** Kept as a named alias so existing imports of ListSegment don't break. */
+export const ListSegment = ListCard;

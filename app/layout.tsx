@@ -6,12 +6,19 @@ import { ThemeProvider } from 'next-themes';
 import { SplashScreen } from './SplashScreen';
 import './globals.css';
 
-import { Inter } from 'next/font/google';
+import { Familjen_Grotesk, JetBrains_Mono } from 'next/font/google';
 import Link from 'next/link';
 
-const interFont = Inter({
+const displayFont = Familjen_Grotesk({
   subsets: ['latin'],
-  display: 'swap'
+  display: 'swap',
+  variable: '--font-display'
+});
+
+const monoFont = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono'
 });
 
 const defaultUrl = process.env.VERCEL_URL
@@ -35,50 +42,51 @@ export default function RootLayout({
   return (
     <html
       lang='en'
-      className={`${interFont.className}`}
+      className={`${displayFont.variable} ${monoFont.variable}`}
       suppressHydrationWarning
     >
       <head>
         <meta name='viewport' content='width=device-width, initial-scale=1' />
       </head>
-      <body className='bg-background text-foreground'>
+      <body>
         <ThemeProvider
           attribute='class'
-          defaultTheme='system'
-          enableSystem
+          defaultTheme='light'
           disableTransitionOnChange
         >
           {isUnderConstruction ? (
             <SplashScreen />
           ) : (
-            <main className='min-h-screen flex flex-col items-center'>
-              <div className='flex-1 w-full flex flex-col items-center'>
-                <nav className='w-full flex justify-center border-b border-b-foreground/10 h-16'>
-                  <div className='w-full max-w-6xl flex justify-between items-center p-3 px-7 text-sm'>
-                    <span className='text-[#121417] text-lg font-bold leading-[23px]'>
+            <main className='min-h-screen flex flex-col'>
+              <nav className='w-full flex justify-center items-center h-[72px] px-6 sm:px-10 border-b-2 border-[var(--ld-ink)]'>
+                <div className='w-full max-w-6xl flex justify-between items-center'>
+                  <Link href='/' className='flex items-center gap-2.5'>
+                    <span className='w-[22px] h-[22px] rounded-[7px] bg-[var(--ld-accent)] border-2 border-[var(--ld-ink)]' />
+                    <span className='text-[21px] font-bold tracking-[-0.02em] text-[var(--ld-ink)]'>
                       LinksDeck
                     </span>
-                    {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
-                  </div>
-                </nav>
-                <div className='flex self-stretch flex-1 justify-center items-start flex-row py-5 px-4'>
-                  {children}
-                  <Toaster position='top-right' reverseOrder={false} />
+                  </Link>
+                  {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                 </div>
+              </nav>
+
+              <div className='flex-1 w-full flex justify-center px-6 sm:px-10 py-10 sm:py-12'>
+                <div className='w-full max-w-6xl'>{children}</div>
+                <Toaster position='top-right' reverseOrder={false} />
               </div>
-              {/* Footer */}
-              <footer className='w-full border-t border-t-foreground/10 py-4 text-center text-xs sm:text-sm text-gray-500'>
-                <div className='max-w-6xl mx-auto px-4'>
-                  <p>
+
+              <footer className='w-full border-t-2 border-[var(--ld-ink)] py-5 px-6 sm:px-10 flex justify-center'>
+                <div className='w-full max-w-6xl flex flex-col sm:flex-row gap-2 justify-between items-center ld-mono text-[13px] sm:text-sm text-[var(--ld-muted)]'>
+                  <span>
                     &copy; {new Date().getFullYear()} LinksDeck. All rights
-                    reserved.{' '}
-                    <Link
-                      href='/contact'
-                      className='text-black hover:underline'
-                    >
-                      Contact
-                    </Link>
-                  </p>
+                    reserved.
+                  </span>
+                  <Link
+                    href='/contact'
+                    className='text-[var(--ld-ink)] border-b-2 border-[var(--ld-accent)] pb-0.5'
+                  >
+                    Contact
+                  </Link>
                 </div>
               </footer>
             </main>

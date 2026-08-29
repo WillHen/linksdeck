@@ -51,94 +51,88 @@ const handleSubmit = async (
 
 export default function ContactPage() {
   return (
-    <div className='flex flex-col items-center min-h-screen px-4 py-8 mt-24 sm:px-6'>
-      <div className='w-full max-w-md space-y-6'>
-        <h1 className='text-2xl font-bold text-center text-gray-800 sm:text-3xl'>
+    <div className='w-full max-w-[500px] mx-auto flex flex-col gap-7 py-6 sm:py-10'>
+      <div className='flex flex-col items-center gap-2.5 text-center'>
+        <h1 className='text-[34px] sm:text-[42px] font-bold leading-[1.05] tracking-[-0.03em] text-[var(--ld-ink)]'>
           Contact Us
         </h1>
-        <p className='text-sm text-center text-gray-600'>
+        <p className='text-base text-[var(--ld-body)]'>
           Have questions or feedback? Fill out the form below to send us an
           email.
         </p>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form className='space-y-4'>
-              <div>
-                <label
-                  htmlFor='email'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  Your Email
-                </label>
-                <Field
-                  type='email'
-                  id='email'
-                  name='email'
-                  className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                  placeholder='Enter your email'
-                />
-                <ErrorMessage
-                  name='email'
-                  component='p'
-                  className='text-sm text-red-600 mt-1'
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='subject'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  Subject
-                </label>
-                <Field
-                  type='text'
-                  id='subject'
-                  name='subject'
-                  className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                  placeholder='Enter the subject'
-                />
-                <ErrorMessage
-                  name='subject'
-                  component='p'
-                  className='text-sm text-red-600 mt-1'
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='message'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  Message
-                </label>
-                <Field
-                  as='textarea'
-                  id='message'
-                  name='message'
-                  rows={4}
-                  className='w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                  placeholder='Enter your message'
-                />
-                <ErrorMessage
-                  name='message'
-                  component='p'
-                  className='text-sm text-red-600 mt-1'
-                />
-              </div>
-              <button
-                type='submit'
-                disabled={isSubmitting}
-                className='w-full rounded-md bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50'
-              >
-                {isSubmitting ? 'Sending...' : 'Send Email'}
-              </button>
-            </Form>
-          )}
-        </Formik>
       </div>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting }) => (
+          <Form className='ld-card flex flex-col gap-[18px] p-7'>
+            <div className='flex flex-col gap-2'>
+              <label htmlFor='email' className='ld-label'>
+                Your Email
+              </label>
+              <Field
+                type='email'
+                id='email'
+                name='email'
+                className='ld-input ld-input-mono'
+                placeholder='Enter your email'
+              />
+              <ErrorMessage
+                name='email'
+                component='p'
+                className='text-[13px] text-[var(--ld-danger-ink)]'
+              />
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label htmlFor='subject' className='ld-label'>
+                Subject
+              </label>
+              <Field
+                type='text'
+                id='subject'
+                name='subject'
+                className='ld-input'
+                placeholder='Enter the subject'
+              />
+              <ErrorMessage
+                name='subject'
+                component='p'
+                className='text-[13px] text-[var(--ld-danger-ink)]'
+              />
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label htmlFor='message' className='ld-label'>
+                Message
+              </label>
+              <Field
+                as='textarea'
+                id='message'
+                name='message'
+                rows={4}
+                className='ld-input pt-3 h-auto resize-none'
+                placeholder='Enter your message'
+              />
+              <ErrorMessage
+                name='message'
+                component='p'
+                className='text-[13px] text-[var(--ld-danger-ink)]'
+              />
+            </div>
+
+            <button
+              type='submit'
+              disabled={isSubmitting}
+              className='ld-btn ld-btn-primary h-[52px] text-[17px] disabled:opacity-60'
+            >
+              {isSubmitting ? 'Sending...' : 'Send Email'}
+            </button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }

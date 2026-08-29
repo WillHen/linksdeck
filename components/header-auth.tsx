@@ -1,7 +1,6 @@
 import { hasEnvVars } from '@/utils/supabase/check-env-vars';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
-import { Button } from './ui/button';
 import { createClient } from '@/utils/supabase/server';
 
 export default async function AuthButton() {
@@ -13,61 +12,43 @@ export default async function AuthButton() {
 
   if (!hasEnvVars) {
     return (
-      <>
-        <div className='flex gap-4 items-center'>
-          <div>
-            <Badge
-              variant={'default'}
-              className='font-normal pointer-events-none'
-            >
-              Please update .env.local file with anon key and url
-            </Badge>
-          </div>
-          <div className='flex gap-2'>
-            <Button
-              asChild
-              size='sm'
-              variant={'outline'}
-              disabled
-              className='opacity-75 cursor-none pointer-events-none'
-            >
-              <Link href='/sign-in'>Sign in</Link>
-            </Button>
-            <Button
-              asChild
-              size='sm'
-              variant={'default'}
-              disabled
-              className='opacity-75 cursor-none pointer-events-none'
-            >
-              <Link href='/sign-up'>Sign up</Link>
-            </Button>
-          </div>
+      <div className='flex gap-4 items-center'>
+        <Badge variant={'default'} className='font-normal pointer-events-none'>
+          Please update .env.local file with anon key and url
+        </Badge>
+        <div className='flex gap-2.5'>
+          <span className='ld-btn h-10 px-4 opacity-75 pointer-events-none'>
+            Sign in
+          </span>
+          <span className='ld-btn ld-btn-primary h-10 px-4 opacity-75 pointer-events-none'>
+            Sign up
+          </span>
         </div>
-      </>
+      </div>
     );
   }
+
   return user ? (
-    <div className='flex gap-4 ml-auto'>
-      <Button asChild size='sm' variant={'outline'}>
-        <Link href='/protected/settings'>Settings</Link>
-      </Button>
-      <Button asChild size='sm' variant={'outline'}>
-        <Link data-testid='home-header-link' href='/'>
-          Home
-        </Link>
-      </Button>
+    <div className='flex gap-2.5 items-center'>
+      <Link
+        href='/protected'
+        data-testid='home-header-link'
+        className='ld-btn h-10 px-4'
+      >
+        Home
+      </Link>
+      <Link href='/protected/settings' className='ld-btn h-10 px-4'>
+        Settings
+      </Link>
     </div>
   ) : (
-    <div className='flex gap-2'>
-      <Button asChild size='sm' variant={'outline'}>
-        <Link href='/sign-in' data-testid='sign-in-link'>
-          Sign in
-        </Link>
-      </Button>
-      <Button asChild size='sm' variant={'default'}>
-        <Link href='/sign-up'>Sign up</Link>
-      </Button>
+    <div className='flex gap-2.5 items-center'>
+      <Link href='/sign-in' data-testid='sign-in-link' className='ld-btn h-10 px-4'>
+        Sign in
+      </Link>
+      <Link href='/sign-up' className='ld-btn ld-btn-primary h-10 px-4'>
+        Sign up
+      </Link>
     </div>
   );
 }

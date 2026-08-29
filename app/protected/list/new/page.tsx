@@ -88,7 +88,7 @@ export default function AddListPage() {
   };
 
   return (
-    <div className='lg:w-1/2 flex flex-col'>
+    <div className='w-full flex flex-col'>
       <ListForm
         handleSubmit={handleSubmit}
         initialValues={{ title: '', description: '', links: [] }}
