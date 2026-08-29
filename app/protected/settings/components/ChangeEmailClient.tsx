@@ -6,7 +6,6 @@ import { emailRegex } from '@/app/constants';
 
 export default function ChangeEmailClient() {
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -57,71 +56,60 @@ export default function ChangeEmailClient() {
 
   return (
     <div className='px-[26px] py-6 border-b-2 border-[var(--ld-line)]'>
-      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-        <div className='flex flex-col gap-1'>
-          <span className='text-[18px] font-semibold leading-[1.2]'>Email</span>
-          <span className='ld-mono text-sm text-[var(--ld-muted)]'>
-            The address you sign in with.
-          </span>
-        </div>
-        <button
-          type='button'
-          className='ld-btn'
-          onClick={() => setOpen((v) => !v)}
-        >
-          Change Email
-        </button>
+      <div className='flex flex-col gap-1 mb-5'>
+        <span className='text-[18px] font-semibold leading-[1.2]'>Email</span>
+        <span className='ld-mono text-sm text-[var(--ld-muted)]'>
+          The address you sign in with.
+        </span>
       </div>
 
-      {open && (
-        <form
-          onSubmit={handleEmailChange}
-          className='flex flex-col gap-3 mt-5'
-          data-testid='change-email-form'
+      <form
+        onSubmit={handleEmailChange}
+        className='flex flex-col gap-3'
+        data-testid='change-email-form'
+      >
+        <label htmlFor='email' className='ld-label'>
+          New email
+        </label>
+        <input
+          id='email'
+          name='email'
+          placeholder='Enter your new email'
+          className='ld-input ld-input-mono'
+          required
+          data-testid='new-email-input'
+        />
+        <div className='min-h-[24px]' data-testid='message-container'>
+          {error && (
+            <div
+              className='text-sm text-[var(--ld-danger-ink)]'
+              data-testid='email-error'
+              role='alert'
+              aria-live='assertive'
+            >
+              {error}
+            </div>
+          )}
+          {success && (
+            <div
+              className='text-sm text-[var(--ld-accent-ink)]'
+              data-testid='email-success'
+              role='status'
+              aria-live='polite'
+            >
+              {success}
+            </div>
+          )}
+        </div>
+        <button
+          type='submit'
+          disabled={loading}
+          data-testid='change-email-submit'
+          className='ld-btn ld-btn-primary self-start disabled:opacity-60'
         >
-          <label htmlFor='email' className='ld-label'>
-            New email
-          </label>
-          <input
-            id='email'
-            name='email'
-            placeholder='Enter your new email'
-            className='ld-input ld-input-mono'
-            required
-            data-testid='new-email-input'
-          />
-          <div className='min-h-[24px]' data-testid='message-container'>
-            {error && (
-              <div
-                className='text-sm text-[var(--ld-danger-ink)]'
-                data-testid='email-error'
-                role='alert'
-                aria-live='assertive'
-              >
-                {error}
-              </div>
-            )}
-            {success && (
-              <div
-                className='text-sm text-[var(--ld-accent)]'
-                data-testid='email-success'
-                role='status'
-                aria-live='polite'
-              >
-                {success}
-              </div>
-            )}
-          </div>
-          <button
-            type='submit'
-            disabled={loading}
-            data-testid='change-email-submit'
-            className='ld-btn ld-btn-primary self-start disabled:opacity-60'
-          >
-            {loading ? 'Changing...' : 'Save new email'}
-          </button>
-        </form>
-      )}
+          {loading ? 'Changing...' : 'Save new email'}
+        </button>
+      </form>
     </div>
   );
 }

@@ -58,6 +58,7 @@ export function LinkDetails({
             Link Title
           </label>
           <Field
+            id={`links[${linkIndex}].title`}
             type='text'
             name={`links[${linkIndex}].title`}
             data-testid={`link-title-${linkIndex}`}
@@ -83,6 +84,7 @@ export function LinkDetails({
             Link URL
           </label>
           <Field
+            id={`links[${linkIndex}].url`}
             type='text'
             name={`links[${linkIndex}].url`}
             data-testid={`link-url-${linkIndex}`}

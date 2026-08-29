@@ -56,6 +56,3 @@ export function ListCard({
     </div>
   );
 }
-
-/** Kept as a named alias so existing imports of ListSegment don't break. */
-export const ListSegment = ListCard;
